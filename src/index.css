@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Sanskrit&display=swap');
+
+@layer base {
+  body {
+    @apply bg-cream-50 text-maroon-900 font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif text-maroon-950 font-normal;
+  }
+}
+
+/* Custom Utilities */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Paper Texture Pattern for base site */
+.bg-paper {
+  background-color: #FFFDF5;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* Royal Indian Jaali Motif Background */
+.bg-jaali {
+  background-image: 
+    radial-gradient(rgba(212, 175, 55, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(212, 175, 55, 0.15) 1.5px, transparent 1.5px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+}
+
+.bg-jaali-maroon {
+  background-image: 
+    radial-gradient(rgba(155, 27, 48, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(155, 27, 48, 0.1) 1.5px, transparent 1.5px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+}
+
+/* Hindi/Sanskrit Font Class */
+.font-sanskrit {
+  font-family: 'Tiro Devanagari Sanskrit', serif;
+}

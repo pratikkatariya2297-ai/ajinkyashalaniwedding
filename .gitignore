@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.log
+check.js
+lint-results.json
+.DS_Store
+Thumbs.db

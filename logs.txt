@@ -1,0 +1,7 @@
+Navigating to http://localhost:5173/
+[Browser Console debug]: [vite] connecting...
+[Browser Console error]: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[Browser Request Failed]: http://localhost:5173/src/index.css?t=1773943656754 - net::ERR_ABORTED
+[Browser Console debug]: [vite] connected.
+Navigation complete. Waiting 2 seconds...
+Done collecting logs.
