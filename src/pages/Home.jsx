@@ -4,10 +4,10 @@ import Loader from '../components/Loader';
 import Hero from '../components/Hero';
 import Timeline from '../components/Timeline';
 import Venue from '../components/Venue';
-import RSVPModal from '../components/RSVPModal';
 import MusicToggle from '../components/MusicToggle';
 import Wardrobe from '../components/Wardrobe';
 import LeadCatcher from '../components/LeadCatcher';
+import PerformanceSignup from '../components/PerformanceSignup';
 import { storage } from '../utils/storage';
 
 const Home = () => {
@@ -42,7 +42,7 @@ const Home = () => {
         <Wardrobe />
         <Timeline />
         <Venue />
-        <RSVPModal />
+        <PerformanceSignup />
         
         <footer className="bg-maroon-950 py-16 text-center border-t-8 border-gold-500 relative overflow-hidden">
           <div className="absolute inset-0 bg-jaali opacity-30 pointer-events-none mix-blend-color-burn" />
