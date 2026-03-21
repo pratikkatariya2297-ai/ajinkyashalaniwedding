@@ -50,7 +50,7 @@ export const getGoogleCalendarUrl = (event) => {
     ctz: 'Asia/Kolkata'
   });
 
-  return `https://www.google.com/calendar/render?${params.toString()}`;
+  return `https://www.google.com/calendar/event?${params.toString()}`;
 };
 
 /**
