@@ -47,32 +47,41 @@ const App = () => {
             <MusicToggle />
 
             {/* Footer */}
-            <footer className="py-16 bg-black text-center border-t-4 border-gold-500 relative overflow-hidden">
-              <div className="absolute inset-0 bg-jaali opacity-10 pointer-events-none" />
-              <div className="w-24 h-24 mx-auto mb-4 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-                <img src={logo} alt="Logo" className="w-full h-full object-contain" />
-              </div>
-              <p className="text-gold-500 font-serif text-2xl font-bold mb-4 tracking-widest">Ajinkya & Shalini</p>
-              <div className="h-0.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent w-32 mx-auto mb-6" />
+            <footer className="py-24 bg-black text-center border-t-8 border-gold-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-jaali opacity-20 pointer-events-none" />
               
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-gold-500/50 text-xs tracking-[4px] uppercase font-medium">All rights reserved by Ivory Tech Solutions</p>
+              <div className="relative z-10 flex flex-col items-center gap-6">
+                <div className="w-20 h-20 mx-auto bg-gold-500/10 p-4 rounded-full border border-gold-500/20 backdrop-blur-sm shadow-[0_0_30px_rgba(212,175,55,0.1)]">
+                  <img src={logo} alt="Logo" className="w-full h-full object-contain grayscale opacity-60" />
+                </div>
                 
-                <a 
-                  href="https://wa.me/91848404888?text=Hi!%20I%20want%20to%20create%20a%20wedding%20info%20landing%20page"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cream-50/70 text-[10px] uppercase tracking-widest hover:text-gold-500 transition-colors duration-300 mt-4 border border-gold-500/20 px-4 py-2 rounded-full hover:border-gold-500/80 bg-maroon-950/30"
-                >
-                  Crafted by Ivory Tech Solutions | WhatsApp: 84840 4888
-                </a>
+                <h3 className="text-gold-500 font-serif text-3xl md:text-4xl font-bold tracking-widest drop-shadow-md">Ajinkya & Shalini</h3>
+                
+                <div className="h-[2px] bg-gradient-to-r from-transparent via-gold-500 to-transparent w-48 mx-auto" />
+                
+                <div className="space-y-4">
+                  <p className="text-gold-400 font-sans text-sm md:text-base tracking-[0.2em] font-bold uppercase opacity-90">
+                    All rights reserved by Ivory Tech Solutions
+                  </p>
+                  
+                  <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8">
+                    <a 
+                      href="https://wa.me/91848404888?text=Hi!%20I%20want%20to%20create%20a%20wedding%20info%20landing%20page"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-2.5 bg-maroon-900/40 border border-gold-500/30 text-gold-400 text-xs uppercase font-bold tracking-widest rounded-full hover:bg-gold-500 hover:text-maroon-950 transition-all duration-300 backdrop-blur-sm"
+                    >
+                      Crafted by Ivory Tech Solutions
+                    </a>
 
-                <a 
-                  href="/admin"
-                  className="text-gold-500/30 text-[10px] uppercase tracking-[0.2em] font-bold hover:text-gold-500 transition-all duration-300 mt-8 border border-gold-500/10 px-6 py-2 rounded-full hover:bg-gold-500/10"
-                >
-                  Admin Portal
-                </a>
+                    <a 
+                      href="/admin"
+                      className="px-6 py-2.5 bg-gold-500/10 border border-gold-500/50 text-gold-500 text-xs uppercase font-bold tracking-widest rounded-full hover:bg-gold-500 hover:text-maroon-950 transition-all duration-300"
+                    >
+                      Admin Portal
+                    </a>
+                  </div>
+                </div>
               </div>
             </footer>
 
