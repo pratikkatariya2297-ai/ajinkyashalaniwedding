@@ -59,12 +59,18 @@ export const storage = {
   // TRAFFIC
   incrementPageView: () => {
     if (!db) return;
-    // Increment total page views
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Increment lifetime totals
     withTimeout(set(ref(db, `${KEYS.TRAFFIC}/pageViews`), increment(1))).catch(() => {});
+    
+    // Increment daily totals
+    withTimeout(set(ref(db, `${KEYS.TRAFFIC}/daily/${today}/pageViews`), increment(1))).catch(() => {});
     
     // Check for unique visitor via sessionStorage (local to session)
     if (!sessionStorage.getItem('has_counted_unique')) {
       withTimeout(set(ref(db, `${KEYS.TRAFFIC}/uniqueVisitors`), increment(1))).catch(() => {});
+      withTimeout(set(ref(db, `${KEYS.TRAFFIC}/daily/${today}/uniqueVisitors`), increment(1))).catch(() => {});
       sessionStorage.setItem('has_counted_unique', 'true');
     }
   },

@@ -10,7 +10,8 @@ const Admin = () => {
     rsvps: [], 
     activities: [], 
     performances: [],
-    traffic: { pageViews: 0, uniqueVisitors: 0 } 
+    traffic: { pageViews: 0, uniqueVisitors: 0 },
+    dailyTraffic: []
   });
   const [activeTab, setActiveTab] = useState('dashboard');
   const [search, setSearch] = useState('');
@@ -40,7 +41,12 @@ const Admin = () => {
     });
 
     const unsubTraffic = onValue(ref(db, 'traffic'), (snap) => {
-      setData(prev => ({ ...prev, traffic: snap.val() || { pageViews: 0, uniqueVisitors: 0 } }));
+      const val = snap.val() || {};
+      const daily = val.daily ? Object.entries(val.daily)
+        .map(([date, stats]) => ({ date, ...stats }))
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(-14) : []; // Last 14 days
+      setData(prev => ({ ...prev, traffic: val, dailyTraffic: daily }));
     });
 
     const unsubPerformances = onValue(ref(db, 'performances'), (snap) => {
@@ -195,30 +201,82 @@ const Admin = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 font-sans">
-                <div className="lg:col-span-2 bg-black/30 backdrop-blur-2xl rounded-4xl border border-gold-500/10 p-8 shadow-3xl relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-jaali opacity-5 pointer-events-none" />
-                  <h3 className="text-2xl font-serif font-bold text-gold-500 mb-8 flex items-center gap-3">
-                    <Activity className="w-6 h-6 animate-pulse" /> Live Pulse Feed
-                  </h3>
-                  <div className="space-y-6 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar">
-                    {data.activities.length === 0 ? (
-                      <p className="text-white/20 italic text-center py-20 uppercase tracking-[0.3em] text-xs">Awaiting Activity...</p>
-                    ) : (
-                      data.activities.map((act, i) => (
-                        <motion.div key={act.id} className="flex gap-5 group items-start relative px-4 py-4 rounded-2xl hover:bg-white/5 transition-all border border-transparent hover:border-gold-500/10">
-                          <div className="h-10 w-10 shrink-0 bg-gold-500/10 border border-gold-500/20 rounded-xl flex items-center justify-center text-gold-500 shadow-xl group-hover:rotate-12 transition-transform">
-                             <Clock className="w-4 h-4" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-cream-50/90 font-medium text-sm leading-relaxed">{act.message}</p>
-                            <span className="text-[10px] font-bold text-white/30 tracking-widest uppercase mt-2 block">
-                              {act.timestamp ? new Date(act.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Real-time Entry'}
-                            </span>
-                          </div>
-                          {i === 0 && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-gold-500"></span></span>}
-                        </motion.div>
-                      ))
-                    )}
+                <div className="lg:col-span-2 flex flex-col gap-8">
+                  {/* Daily Traffic Chart */}
+                  <div className="bg-black/30 backdrop-blur-2xl rounded-4xl border border-gold-500/10 p-8 shadow-3xl relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-jaali opacity-5 pointer-events-none" />
+                    <div className="flex justify-between items-center mb-8 relative z-10">
+                      <h3 className="text-2xl font-serif font-bold text-gold-500 flex items-center gap-3">
+                        <Eye className="w-6 h-6" /> Daily Insights
+                      </h3>
+                      <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
+                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-gold-500" /> Views</div>
+                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-400" /> Visitors</div>
+                      </div>
+                    </div>
+                    
+                    <div className="h-64 flex items-end gap-2 md:gap-4 relative z-10 pt-4">
+                      {data.dailyTraffic.length === 0 ? (
+                        <p className="w-full text-center text-white/10 italic text-xs uppercase tracking-widest py-20">No daily data Yet...</p>
+                      ) : (
+                        data.dailyTraffic.map((day, i) => {
+                          const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
+                          return (
+                            <div key={day.date} className="flex-1 flex flex-col items-center gap-3 group/bar">
+                              <div className="w-full flex flex-col items-center justify-end gap-1 h-full relative">
+                                {/* Tooltip */}
+                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gold-500 text-maroon-950 text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-xl">
+                                  {day.pageViews} Views
+                                </div>
+                                <motion.div 
+                                  className="w-full bg-gold-500/80 group-hover/bar:bg-gold-400 rounded-t-lg shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                                  initial={{ height: 0 }} 
+                                  animate={{ height: `${(day.pageViews / max) * 100}%` }}
+                                  transition={{ duration: 1, delay: i * 0.05 }}
+                                />
+                                <motion.div 
+                                  className="w-[60%] bg-blue-400/80 absolute bottom-0 group-hover/bar:bg-blue-300 rounded-t-sm"
+                                  initial={{ height: 0 }} 
+                                  animate={{ height: `${((day.uniqueVisitors || 0) / max) * 100}%` }}
+                                  transition={{ duration: 1, delay: i * 0.05 + 0.2 }}
+                                />
+                              </div>
+                              <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter group-hover/bar:text-gold-500 transition-colors">
+                                {day.date.split('-').slice(1).join('/')}
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Live Pulse Feed */}
+                  <div className="bg-black/30 backdrop-blur-2xl rounded-4xl border border-gold-500/10 p-8 shadow-3xl relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-jaali opacity-5 pointer-events-none" />
+                    <h3 className="text-2xl font-serif font-bold text-gold-500 mb-8 flex items-center gap-3">
+                      <Activity className="w-6 h-6 animate-pulse" /> Live Pulse Feed
+                    </h3>
+                    <div className="space-y-6 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar">
+                      {data.activities.length === 0 ? (
+                        <p className="text-white/20 italic text-center py-20 uppercase tracking-[0.3em] text-xs">Awaiting Activity...</p>
+                      ) : (
+                        data.activities.map((act, i) => (
+                          <motion.div key={act.id} className="flex gap-5 group items-start relative px-4 py-4 rounded-2xl hover:bg-white/5 transition-all border border-transparent hover:border-gold-500/10">
+                            <div className="h-10 w-10 shrink-0 bg-gold-500/10 border border-gold-500/20 rounded-xl flex items-center justify-center text-gold-500 shadow-xl group-hover:rotate-12 transition-transform">
+                               <Clock className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-cream-50/90 font-medium text-sm leading-relaxed">{act.message}</p>
+                              <span className="text-[10px] font-bold text-white/30 tracking-widest uppercase mt-2 block">
+                                {act.timestamp ? new Date(act.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Real-time Entry'}
+                              </span>
+                            </div>
+                            {i === 0 && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-gold-500"></span></span>}
+                          </motion.div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
 
