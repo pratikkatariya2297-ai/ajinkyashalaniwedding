@@ -1,59 +1,82 @@
+import { db } from '../firebase';
+import { ref, push, set, onValue, serverTimestamp, increment } from 'firebase/database';
+
 const KEYS = {
-  LEADS: 'wedding_leads',
-  RSVPS: 'wedding_rsvps',
-  ACTIVITY: 'wedding_activity',
-  TRAFFIC: 'wedding_traffic'
+  LEADS: 'leads',
+  RSVPS: 'rsvps',
+  ACTIVITY: 'activity',
+  TRAFFIC: 'traffic'
 };
-
-const initStorage = () => {
-  if (!localStorage.getItem(KEYS.LEADS)) localStorage.setItem(KEYS.LEADS, JSON.stringify([]));
-  if (!localStorage.getItem(KEYS.RSVPS)) localStorage.setItem(KEYS.RSVPS, JSON.stringify([]));
-  if (!localStorage.getItem(KEYS.ACTIVITY)) localStorage.setItem(KEYS.ACTIVITY, JSON.stringify([]));
-  if (!localStorage.getItem(KEYS.TRAFFIC)) {
-    localStorage.setItem(KEYS.TRAFFIC, JSON.stringify({ pageViews: 0, uniqueVisitors: 0 }));
-  }
-};
-
-initStorage();
 
 export const storage = {
   // LEADS
-  saveLead: (lead) => {
-    const leads = JSON.parse(localStorage.getItem(KEYS.LEADS) || '[]');
-    leads.push({ ...lead, id: Date.now(), timestamp: new Date().toISOString() });
-    localStorage.setItem(KEYS.LEADS, JSON.stringify(leads));
-    storage.logActivity(`Lead captured: ${lead.name}`);
+  saveLead: async (lead) => {
+    if (!db) return;
+    try {
+      await push(ref(db, KEYS.LEADS), {
+        ...lead,
+        timestamp: serverTimestamp()
+      });
+      storage.logActivity(`Lead captured: ${lead.name}`);
+    } catch (err) {
+      console.error('Failed to save lead to Firebase', err);
+    }
   },
-  getLeads: () => JSON.parse(localStorage.getItem(KEYS.LEADS) || '[]'),
   
   // RSVPS
-  saveRSVP: (rsvp) => {
-    const rsvps = JSON.parse(localStorage.getItem(KEYS.RSVPS) || '[]');
-    rsvps.push({ ...rsvp, id: Date.now(), timestamp: new Date().toISOString() });
-    localStorage.setItem(KEYS.RSVPS, JSON.stringify(rsvps));
-    storage.logActivity(`New RSVP from ${rsvp.name}: ${rsvp.attending}`);
+  saveRSVP: async (rsvp) => {
+    if (!db) return;
+    try {
+      await push(ref(db, KEYS.RSVPS), {
+        ...rsvp,
+        timestamp: serverTimestamp()
+      });
+      storage.logActivity(`New RSVP from ${rsvp.name}: ${rsvp.attending}`);
+    } catch (err) {
+      console.error('Failed to save RSVP to Firebase', err);
+    }
   },
-  getRSVPs: () => JSON.parse(localStorage.getItem(KEYS.RSVPS) || '[]'),
 
   // ACTIVITY
   logActivity: (message) => {
-    const activities = JSON.parse(localStorage.getItem(KEYS.ACTIVITY) || '[]');
-    activities.unshift({ message, id: Date.now(), timestamp: new Date().toISOString() });
-    localStorage.setItem(KEYS.ACTIVITY, JSON.stringify(activities.slice(0, 100)));
+    if (!db) return;
+    push(ref(db, KEYS.ACTIVITY), {
+      message,
+      timestamp: serverTimestamp()
+    }).catch(() => {});
   },
-  getActivities: () => JSON.parse(localStorage.getItem(KEYS.ACTIVITY) || '[]'),
 
   // TRAFFIC
   incrementPageView: () => {
-    const traffic = JSON.parse(localStorage.getItem(KEYS.TRAFFIC) || '{"pageViews":0,"uniqueVisitors":0}');
-    traffic.pageViews += 1;
+    if (!db) return;
+    // Increment total page views
+    set(ref(db, `${KEYS.TRAFFIC}/pageViews`), increment(1)).catch(() => {});
     
-    if (!sessionStorage.getItem('has_visited')) {
-      traffic.uniqueVisitors += 1;
-      sessionStorage.setItem('has_visited', 'true');
+    // Check for unique visitor via sessionStorage (local to session)
+    if (!sessionStorage.getItem('has_counted_unique')) {
+      set(ref(db, `${KEYS.TRAFFIC}/uniqueVisitors`), increment(1)).catch(() => {});
+      sessionStorage.setItem('has_counted_unique', 'true');
     }
-    
-    localStorage.setItem(KEYS.TRAFFIC, JSON.stringify(traffic));
   },
-  getTraffic: () => JSON.parse(localStorage.getItem(KEYS.TRAFFIC) || '{"pageViews":0,"uniqueVisitors":0}')
+
+  // PERFORMANCES
+  savePerformance: async (performance) => {
+    if (!db) return;
+    try {
+      await push(ref(db, 'performances'), {
+        ...performance,
+        submittedAt: serverTimestamp()
+      });
+      storage.logActivity(`New Performance: ${performance.name} (${performance.songTitle || 'Act'})`);
+    } catch (err) {
+      console.error('Failed to save performance to Firebase', err);
+    }
+  },
+
+  // GETTERS (Legacy support - though Admin.jsx should use real-time listeners)
+  getLeads: () => [], 
+  getRSVPs: () => [],
+  getActivities: () => [],
+  getTraffic: () => ({ pageViews: 0, uniqueVisitors: 0 })
 };
+

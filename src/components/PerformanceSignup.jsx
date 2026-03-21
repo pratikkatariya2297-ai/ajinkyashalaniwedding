@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ClickSparkles from './ui/ClickSparkles';
-import { db } from '../firebase';
-import { ref, push, serverTimestamp } from 'firebase/database';
+import { storage } from '../utils/storage';
 
 const PerformanceSignup = () => {
   const [open, setOpen] = useState(false);
@@ -17,12 +16,7 @@ const PerformanceSignup = () => {
     if (!form.name || !form.act) return;
     setStatus('submitting');
     try {
-      if (db) {
-        await push(ref(db, 'performances'), {
-          ...form,
-          submittedAt: serverTimestamp(),
-        });
-      }
+      await storage.savePerformance(form);
       setStatus('done');
       setTimeout(() => { setOpen(false); setStatus('idle'); setForm({ name: '', contact: '', event: '', act: '', duration: '', message: '' }); }, 2500);
     } catch {

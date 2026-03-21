@@ -57,8 +57,8 @@ const LeadCatcher = ({ onAccessGranted }) => {
     const metadata = await fetchMetadata();
     const finalData = { ...formData, ...metadata };
     
-    storage.saveRSVP(finalData);
-    storage.saveLead(finalData);
+    await storage.saveRSVP(finalData);
+    await storage.saveLead(finalData);
     
     sessionStorage.setItem('guest_access', 'true');
     sessionStorage.setItem('guest_name', formData.name);
