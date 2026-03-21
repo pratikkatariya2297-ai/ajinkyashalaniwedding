@@ -123,7 +123,7 @@ const Hero = () => {
 
         {/* Save the Date */}
         <motion.div
-          className="flex items-center gap-4 mb-4"
+          className="flex items-center gap-4 mb-2"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -136,26 +136,31 @@ const Hero = () => {
 
         {/* Logo — tap to shower roses */}
         <motion.div
-          className="relative mb-4 cursor-pointer active:scale-95 transition-transform select-none"
+          className="relative mb-6 cursor-pointer active:scale-95 transition-transform select-none group/logo"
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.5, delay: 0.8 }}
           onClick={handleLogoTap}
         >
-          <div className="h-32 md:h-48 lg:h-60 aspect-square mx-auto">
+          <div className="h-40 md:h-56 lg:h-64 aspect-square mx-auto relative">
             <img
               src={logo}
               alt="Ajinkya & Shalini"
-              className="w-full h-full object-contain filter drop-shadow-[0_10px_30px_rgba(212,175,55,0.6)]"
+              className="w-full h-full object-contain filter drop-shadow-[0_10px_40px_rgba(212,175,55,0.7)] group-hover/logo:drop-shadow-[0_15px_60px_rgba(212,175,55,0.9)] transition-all duration-700"
             />
           </div>
-          <p className="text-gold-500 text-[9px] tracking-[0.3em] uppercase mt-2 opacity-50 animate-pulse">Tap to Bless</p>
+          <div className="mt-4 flex flex-col items-center">
+            <span className="text-gold-400 font-serif text-sm md:text-lg tracking-[0.3em] uppercase font-bold drop-shadow-lg bg-gradient-to-r from-gold-600 via-gold-200 to-gold-600 bg-[length:200%_auto] animate-shimmer bg-clip-text text-transparent px-4 py-1 border border-gold-500/30 rounded-full bg-gold-500/5 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+              Tap to Bless
+            </span>
+            <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-gold-500 to-transparent mt-2 animate-pulse" />
+          </div>
         </motion.div>
 
         {/* Countdown — directly below logo */}
         <motion.div
-          className="flex gap-3 md:gap-8 justify-center mb-5"
+          className="flex gap-4 md:gap-10 justify-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -163,26 +168,26 @@ const Hero = () => {
         >
           {Object.entries(timeLeft).map(([unit, value]) => (
             <div key={unit} className="flex flex-col items-center group">
-              <div className="relative w-14 md:w-20 flex items-center justify-center mb-2 transition-transform duration-500 group-hover:-translate-y-2 bg-maroon-950 border-2 border-gold-500 rounded-t-full shadow-[0_10px_20px_rgba(0,0,0,0.6)]" style={{ height: '4.5rem' }}>
+              <div className="relative w-16 md:w-24 flex items-center justify-center mb-3 transition-transform duration-500 group-hover:-translate-y-2 bg-maroon-950 border-2 border-gold-500 rounded-t-full shadow-[0_15px_25px_rgba(0,0,0,0.7)]" style={{ height: '5rem' }}>
                 <div className="absolute inset-1 border border-gold-500/30 rounded-t-full" />
-                <span className="relative z-10 text-3xl md:text-4xl font-serif text-cream-50 font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                <span className="relative z-10 text-3xl md:text-5xl font-serif text-cream-50 font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                   {value.toString().padStart(2, '0')}
                 </span>
               </div>
-              <span className="text-cream-100 font-bold text-[9px] md:text-[10px] tracking-[0.2em] uppercase font-sans">{unit}</span>
+              <span className="text-cream-100 font-extrabold text-[10px] md:text-xs tracking-[0.25em] uppercase font-sans drop-shadow-md">{unit}</span>
             </div>
           ))}
         </motion.div>
 
         {/* Date + Add to Calendar */}
         <motion.div
-          className="flex flex-col items-center gap-3"
+          className="flex flex-col items-center gap-4 mb-12 md:mb-16"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1, delay: 1.5 }}
         >
-          <p className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-cream-50 to-gold-400 bg-[length:200%_auto] animate-shimmer font-serif text-2xl md:text-3xl font-bold italic drop-shadow-md">
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-cream-50 to-gold-400 bg-[length:200%_auto] animate-shimmer font-serif text-3xl md:text-5xl font-bold italic drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] mb-2">
             26th April, 2026
           </p>
 
@@ -190,21 +195,22 @@ const Hero = () => {
           <ClickSparkles color="#FFD700">
             <button
               onClick={onCalendarClick}
-              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans text-[11px] md:text-sm tracking-[0.25em] uppercase font-extrabold rounded-full mt-2 shadow-[0_0_30px_rgba(212,175,55,0.7)] hover:shadow-[0_0_50px_rgba(212,175,55,1)] hover:scale-105 border-2 border-gold-300 transition-all duration-300 active:scale-95 group"
+              className="inline-flex items-center gap-4 px-10 py-4 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans text-xs md:text-base tracking-[0.25em] uppercase font-extrabold rounded-full shadow-[0_0_30px_rgba(212,175,55,0.7)] hover:shadow-[0_0_60px_rgba(212,175,55,1)] hover:scale-110 border-2 border-gold-300 transition-all duration-300 active:scale-95 group relative overflow-hidden"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 transition-transform group-hover:scale-125" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 transition-transform group-hover:scale-125" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Add to Calendar
+              <span>Add to Calendar</span>
             </button>
           </ClickSparkles>
         </motion.div>
 
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator - Moved down slightly to avoid overlap */}
       <motion.div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-20"
+        className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-20"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 3, duration: 1 }}

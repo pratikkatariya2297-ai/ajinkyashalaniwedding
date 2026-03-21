@@ -45,9 +45,12 @@ export const getGoogleCalendarUrl = (event) => {
     dates: `${dtStart}/${dtEnd}`,
     details: event.description || "Join us to celebrate the wedding of Ajinkya & Shalini! 🌸",
     location: 'Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune – 411028',
+    trp: 'false',
+    sprop: 'website:https://ajinkyashalaniwedding.vercel.app/',
+    ctz: 'Asia/Kolkata'
   });
 
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  return `https://www.google.com/calendar/render?${params.toString()}`;
 };
 
 /**
