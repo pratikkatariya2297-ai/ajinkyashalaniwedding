@@ -7,7 +7,7 @@ import { getDatabase, ref, push, set, onValue, serverTimestamp } from 'firebase/
 const firebaseConfig = {
   apiKey: "AIzaSyBCPn8etyBItglkA1QFo0biuWh6uJbKY1I",
   authDomain: "ajinkya-shalini.firebaseapp.com",
-  databaseURL: "https://ajinkya-shalini-default-rtdb.asia-southeast1.firebasedatabase.app", // Required for Realtime Database
+  databaseURL: "https://ajinkya-shalini-default-rtdb.firebaseio.com", // Required for Realtime Database
   projectId: "ajinkya-shalini",
   storageBucket: "ajinkya-shalini.firebasestorage.app",
   messagingSenderId: "478689324822",
