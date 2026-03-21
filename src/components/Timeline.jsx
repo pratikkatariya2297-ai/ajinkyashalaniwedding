@@ -2,6 +2,86 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import GlobalFestiveElements from './GlobalFestiveElements';
 
+// Build a Google Calendar URL
+const toGoogleCalUrl = (event) => {
+  // Parse date + time e.g. "24 April 2026" + "Evening" -> fallback to midnight
+  const months = { January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11 };
+  const parts = event.date.split(' ');
+  const day = parseInt(parts[0], 10);
+  const month = months[parts[1]];
+  const year = parseInt(parts[2], 10);
+  const timeStr = event.time;
+  let hour = 0, minute = 0;
+  if (timeStr && timeStr.includes(':')) {
+    const [h, mPart] = timeStr.split(':');
+    hour = parseInt(h, 10);
+    minute = parseInt(mPart, 10);
+    if (timeStr.toLowerCase().includes('pm') && hour !== 12) hour += 12;
+    if (timeStr.toLowerCase().includes('am') && hour === 12) hour = 0;
+  } else if (timeStr.toLowerCase() === 'evening') {
+    hour = 18;
+  }
+  const pad = n => String(n).padStart(2, '0');
+  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00`;
+  // +2 hours end
+  let endHour = hour + 2;
+  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(endHour)}${pad(minute)}00`;
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: `${event.title} – Ajinkya & Shalini Wedding`,
+    dates: `${dtStart}/${dtEnd}`,
+    details: event.description,
+    location: 'Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune 411028',
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+};
+
+// Build and trigger an .ics download for Apple Calendar
+const downloadICS = (event) => {
+  const months = { January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11 };
+  const parts = event.date.split(' ');
+  const day = parseInt(parts[0], 10);
+  const month = months[parts[1]];
+  const year = parseInt(parts[2], 10);
+  const timeStr = event.time;
+  let hour = 0, minute = 0;
+  if (timeStr && timeStr.includes(':')) {
+    const [h, mPart] = timeStr.split(':');
+    hour = parseInt(h, 10);
+    minute = parseInt(mPart, 10);
+    if (timeStr.toLowerCase().includes('pm') && hour !== 12) hour += 12;
+    if (timeStr.toLowerCase().includes('am') && hour === 12) hour = 0;
+  } else if (timeStr.toLowerCase() === 'evening') {
+    hour = 18;
+  }
+  const pad = n => String(n).padStart(2, '0');
+  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00`;
+  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(hour+2)}${pad(minute)}00`;
+  const now = new Date().toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Ivory Tech Solutions//Wedding//EN',
+    'BEGIN:VEVENT',
+    `UID:${event.title.replace(/\s/g,'-')}-ajinkya-shalini@ivorytech`,
+    `DTSTAMP:${now}`,
+    `DTSTART;TZID=Asia/Kolkata:${dtStart}`,
+    `DTEND;TZID=Asia/Kolkata:${dtEnd}`,
+    `SUMMARY:${event.title} – Ajinkya & Shalini Wedding`,
+    `DESCRIPTION:${event.description}`,
+    'LOCATION:Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune 411028',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${event.title.replace(/\s/g,'-')}-AjinkyaShaliniWedding.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
 const events = [
   {
     title: "Mehendi Ceremony",
@@ -67,6 +147,25 @@ const TimelineCard = ({ event, index }) => {
       <p className={`text-maroon-900/80 font-sans font-medium leading-relaxed relative z-10 text-[15px] ${isEven ? 'md:text-right' : ''}`}>
         {event.description}
       </p>
+      {/* Calendar Buttons */}
+      <div className={`flex flex-wrap gap-2 mt-4 relative z-10 ${isEven ? 'md:justify-end' : ''}`}>
+        <button
+          onClick={() => downloadICS(event)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-maroon-900/20 bg-maroon-50/60 text-maroon-800 text-[10px] font-bold tracking-wider uppercase hover:border-gold-500 hover:bg-gold-50 hover:text-maroon-950 transition-all duration-200 shadow-sm"
+        >
+          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z"/></svg>
+          Apple Calendar
+        </button>
+        <a
+          href={toGoogleCalUrl(event)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-maroon-900/20 bg-maroon-50/60 text-maroon-800 text-[10px] font-bold tracking-wider uppercase hover:border-gold-500 hover:bg-gold-50 hover:text-maroon-950 transition-all duration-200 shadow-sm"
+        >
+          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z"/></svg>
+          Google Calendar
+        </a>
+      </div>
     </div>
   );
 

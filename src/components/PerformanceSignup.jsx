@@ -253,18 +253,20 @@ const PerformanceSignup = () => {
                     <p className="text-red-600 text-[10px] md:text-xs font-sans font-bold text-center">Something went wrong. Please try again.</p>
                   )}
 
-                  <ClickSparkles color="#FFD700">
-                    <motion.button 
-                      type="submit" disabled={status === 'submitting'}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full relative overflow-hidden group/btn bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans uppercase tracking-[0.2em] font-extrabold py-4 mt-4 border-2 border-gold-400 rounded-full transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:opacity-50 text-xs md:text-sm flex items-center justify-center gap-2"
-                    >
-                      <span className="absolute inset-0 bg-white/30 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out rounded-full" />
-                      <span className="relative z-10 mt-[1px]">{status === 'submitting' ? 'Submitting...' : 'Register Performance'}</span>
-                      {status !== 'submitting' && <span className="relative z-10">✨</span>}
-                    </motion.button>
-                  </ClickSparkles>
+                  <div className="flex justify-center mt-4">
+                    <ClickSparkles color="#FFD700">
+                      <motion.button 
+                        type="submit" disabled={status === 'submitting'}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="relative overflow-hidden group/btn bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans uppercase tracking-[0.2em] font-extrabold py-4 px-10 border-2 border-gold-400 rounded-full transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:opacity-50 text-xs md:text-sm flex items-center justify-center gap-2"
+                      >
+                        <span className="absolute inset-0 bg-white/30 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out rounded-full" />
+                        <span className="relative z-10 mt-[1px]">{status === 'submitting' ? 'Submitting...' : 'Register Performance'}</span>
+                        {status !== 'submitting' && <span className="relative z-10">✨</span>}
+                      </motion.button>
+                    </ClickSparkles>
+                  </div>
                 </form>
               )}
             </motion.div>
