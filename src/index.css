@@ -1,9 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Sanskrit&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Sanskrit&display=swap');
-
 @layer base {
   body {
     @apply bg-cream-50 text-maroon-900 font-sans antialiased;
@@ -15,20 +14,163 @@
   }
 }
 
-/* Custom Utilities */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
+/* Global Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+  33% { transform: translateY(-14px) rotateZ(1deg); }
+  66% { transform: translateY(-7px) rotateZ(-1deg); }
 }
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+@keyframes spin3d {
+  from { transform: perspective(400px) rotateY(0deg) rotateX(15deg); }
+  to   { transform: perspective(400px) rotateY(360deg) rotateX(15deg); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); } to { transform: rotate(360deg); }
+}
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 0 40px rgba(212, 175, 55, 0.2); }
+  50%      { box-shadow: 0 0 40px rgba(212, 175, 55, 0.7), 0 0 80px rgba(212, 175, 55, 0.3); }
+}
+@keyframes riseIn {
+  from { opacity: 0; transform: perspective(800px) translateZ(-120px) translateY(40px); }
+  to   { opacity: 1; transform: perspective(800px) translateZ(0px) translateY(0px); }
+}
+@keyframes slideZ {
+  from { opacity: 0; transform: perspective(600px) rotateX(20deg) translateY(30px); }
+  to   { opacity: 1; transform: perspective(600px) rotateX(0deg) translateY(0px); }
+}
+@keyframes orbits {
+  from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+}
+@keyframes counterSpin {
+  from { transform: rotate(0deg); } to { transform: rotate(-360deg); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes depthBob {
+  0%,100% { transform: perspective(600px) translateZ(0px); }
+  50%      { transform: perspective(600px) translateZ(20px); }
+}
+@keyframes cardEntrance {
+  from { opacity: 0; transform: perspective(800px) rotateY(-30deg) translateX(-30px); }
+  to   { opacity: 1; transform: perspective(800px) rotateY(0deg) translateX(0px); }
+}
+@keyframes flutter {
+  0% { transform: rotateY(0deg) skew(0deg); }
+  25% { transform: rotateY(45deg) skew(5deg); }
+  50% { transform: rotateY(0deg) skew(0deg); }
+  75% { transform: rotateY(45deg) skew(-5deg); }
+  100% { transform: rotateY(0deg) skew(0deg); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(-15px) translateX(0px) rotate(0deg); }
+  33% { transform: translateY(10px) translateX(8px) rotate(3deg); }
+  66% { transform: translateY(-5px) translateX(-4px) rotate(-3deg); }
+}
+@keyframes floatPath1 {
+  0% { transform: translate(-20vw, 120vh) rotate(30deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(120vw, -20vh) rotate(10deg); opacity: 1; }
+}
+@keyframes floatPath2 {
+  0% { transform: translate(120vw, 110vh) rotate(-30deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(-20vw, -10vh) rotate(-10deg); opacity: 1; }
+}
+@keyframes floatPath3 {
+  0% { transform: translate(50vw, 120vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(20vw, 50vh) rotate(15deg); }
+  100% { transform: translate(120vw, 0vh) rotate(0deg); opacity: 1; }
+}
+@keyframes hangingDrift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(15px, 25px) rotate(5deg); }
+  50% { transform: translate(-10px, 40px) rotate(-3deg); }
+  75% { transform: translate(20px, 15px) rotate(2deg); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30px); }
+}
+@keyframes fadeTrail {
+  0% { opacity: 0.8; transform: scale(1) translate(-50%, -50%); }
+  100% { opacity: 0; transform: scale(3) translate(-50%, -50%); }
 }
 
-/* Paper Texture Pattern for base site */
-.bg-paper {
-  background-color: #FFFDF5;
-  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+@keyframes logoShine {
+  0% { transform: translateX(-150%) skewX(-25deg); }
+  50%, 100% { transform: translateX(150%) skewX(-25deg); }
 }
+
+@keyframes roseFall {
+  0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(110vh) translateX(100px) rotate(720deg); opacity: 0; }
+}
+
+/* Helper Classes */
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-spin-3d { animation: spin 3d 8s linear infinite; }
+.animate-spin-slow { animation: spin 12s linear infinite; }
+.animate-glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
+.animate-shimmer { animation: shimmer 4s linear infinite; }
+.animate-butterfly-flutter { animation: flutter 0.25s infinite ease-in-out; }
+.animate-butterfly-bob { animation: bob 5s ease-in-out infinite; }
+.animate-hanging-drift { animation: hangingDrift 15s ease-in-out infinite; }
+
+.logo-container {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-shine-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%
+  );
+  animation: logoShine 3s infinite linear;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen; /* This ensures it only shines on lighter areas (the gold letters) */
+}
+
+.rose-petal {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100;
+  background: #ff4d4d;
+  border-radius: 50% 0 50% 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #D4AF37 0%, #FFFDF5 40%, #E5C058 60%, #D4AF37 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+.reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); will-change: opacity, transform; }
+.reveal.active { opacity: 1; transform: translateY(0); }
 
 /* Royal Indian Jaali Motif Background */
 .bg-jaali {
@@ -50,4 +192,12 @@
 /* Hindi/Sanskrit Font Class */
 .font-sanskrit {
   font-family: 'Tiro Devanagari Sanskrit', serif;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -1,0 +1,35 @@
+On branch master
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   index.html
+	modified:   package.json
+	modified:   src/App.jsx
+	modified:   src/components/Hero.jsx
+	modified:   src/components/LeadCatcher.jsx
+	modified:   src/components/Loader.jsx
+	modified:   src/components/MusicToggle.jsx
+	deleted:    src/components/RSVPModal.jsx
+	modified:   src/components/Timeline.jsx
+	modified:   src/components/Venue.jsx
+	modified:   src/components/Wardrobe.jsx
+	modified:   src/firebase.js
+	modified:   src/index.css
+	modified:   src/main.jsx
+	modified:   src/pages/Admin.jsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_files.txt
+	public/premium_vidhi_mandap.png
+	public/savera.mp3
+	src/assets/logo.png
+	src/components/Admin.jsx
+	src/components/Butterfly.jsx
+	src/components/ErrorBoundary.jsx
+	src/components/GlobalFestiveElements.jsx
+	src/components/PerformanceSignup.jsx
+	src/components/ui/
+	src/utils/audio.js
+
+no changes added to commit (use "git add" and/or "git commit -a")

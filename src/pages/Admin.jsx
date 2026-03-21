@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Activity, Eye, CalendarCheck, Crown } from 'lucide-react';
+import { Users, Activity, Eye, CalendarCheck, Crown, Search, Download, Menu, X, MapPin, Smartphone, Clock } from 'lucide-react';
 import { storage } from '../utils/storage';
 
 const Admin = () => {
-  const [data, setData] = useState({
-    leads: [], rsvps: [], activities: [], traffic: { pageViews: 0, uniqueVisitors: 0 }
-  });
+  const [data, setData] = useState({ leads: [], rsvps: [], activities: [], traffic: { pageViews: 0, uniqueVisitors: 0 } });
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [search, setSearch] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const fetchData = () => {
     setData({
@@ -18,109 +18,120 @@ const Admin = () => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 2000);
+    const interval = setInterval(fetchData, 3000);
     return () => clearInterval(interval);
   }, []);
 
+  const exportCSV = (type) => {
+    const items = type === 'leads' ? data.leads : data.rsvps;
+    if (!items.length) return alert('No data to export.');
+    
+    const headers = Object.keys(items[0]).filter(k => k !== 'id').join(',');
+    const rows = items.map(obj => Object.keys(obj).filter(k => k !== 'id').map(k => `"${String(obj[k]).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = `${headers}\n${rows}`;
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${type}_export_${new Date().toLocaleDateString()}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const filteredLeads = data.leads.filter(l => l.name?.toLowerCase().includes(search.toLowerCase()) || l.phone?.includes(search));
+  const filteredRSVPs = data.rsvps.filter(r => r.name?.toLowerCase().includes(search.toLowerCase()) || r.email?.toLowerCase().includes(search.toLowerCase()));
+
+  const NavButton = ({ id, icon: Icon, label }) => (
+    <button 
+      onClick={() => { setActiveTab(id); setMobileMenuOpen(false); setSearch(''); }}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium active:scale-95 ${activeTab === id ? 'bg-orange-50 text-orange-600 shadow-sm border border-orange-100' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent'}`}
+    >
+      <Icon className={`w-5 h-5 ${activeTab === id ? 'text-orange-500' : 'text-gray-400'}`} /> {label}
+    </button>
+  );
+
   return (
-    <div className="min-h-screen bg-maroon-950 text-cream-50 font-sans flex flex-col md:flex-row selection:bg-gold-500/40 relative">
-      <div className="absolute inset-0 bg-jaali opacity-20 pointer-events-none mix-blend-color-burn" />
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans text-gray-800">
       
+      {/* Mobile Top Bar */}
+      <div className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <div className="flex items-center gap-2 text-orange-600">
+          <Crown className="w-6 h-6" />
+          <h1 className="font-bold text-xl tracking-tight">Admin Dash</h1>
+        </div>
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 bg-gray-100 rounded-md text-gray-600 active:scale-95 transition-transform">
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
+
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-maroon-900 border-r-4 border-gold-500 p-8 flex flex-col shrink-0 relative z-10 shadow-[5px_0_20px_rgba(0,0,0,0.5)]">
-        <div className="mb-14 text-center md:text-left mt-4 border-b border-gold-500/30 pb-8">
-          <Crown className="w-12 h-12 text-gold-500 mx-auto md:mx-0 mb-4 drop-shadow-md" />
-          <h1 className="text-3xl font-serif text-gold-500 tracking-wide font-bold">Royal Admin</h1>
-          <p className="text-cream-100/70 text-[10px] font-bold tracking-[0.3em] uppercase mt-2">Invitation Control</p>
+      <aside className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-64 lg:w-72 bg-white border-r border-gray-200 h-[calc(100vh-65px)] md:h-screen sticky top-[65px] md:top-0 z-40 p-6 shadow-sm`}>
+        <div className="hidden md:flex flex-col items-center mb-10 pb-6 border-b border-gray-100 mt-4">
+          <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-4 border border-orange-100 shadow-sm">
+            <Crown className="w-8 h-8 text-orange-500" />
+          </div>
+          <h1 className="text-xl font-bold text-gray-800 tracking-tight">Royal Dashboard</h1>
+          <p className="text-xs font-semibold tracking-wider text-gray-400 uppercase mt-1">Saffron Setup</p>
         </div>
 
-        <nav className="flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-4 md:pb-0">
-          <button 
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center gap-4 px-5 py-4 rounded-md transition-all whitespace-nowrap font-bold tracking-wide uppercase text-sm border-2 ${activeTab === 'dashboard' ? 'bg-cream-50 text-maroon-950 border-gold-500 shadow-md transform translate-x-1' : 'text-cream-50/70 border-transparent hover:border-gold-500/30 hover:bg-maroon-950'}`}
-          >
-            <Activity className="w-5 h-5 flex-shrink-0" /> Dashboard
-          </button>
-          <button 
-            onClick={() => setActiveTab('guests')}
-            className={`flex items-center gap-4 px-5 py-4 rounded-md transition-all whitespace-nowrap font-bold tracking-wide uppercase text-sm border-2 ${activeTab === 'guests' ? 'bg-cream-50 text-maroon-950 border-gold-500 shadow-md transform translate-x-1' : 'text-cream-50/70 border-transparent hover:border-gold-500/30 hover:bg-maroon-950'}`}
-          >
-            <Users className="w-5 h-5 flex-shrink-0" /> Guests / Leads
-          </button>
-          <button 
-            onClick={() => setActiveTab('rsvps')}
-            className={`flex items-center gap-4 px-5 py-4 rounded-md transition-all whitespace-nowrap font-bold tracking-wide uppercase text-sm border-2 ${activeTab === 'rsvps' ? 'bg-cream-50 text-maroon-950 border-gold-500 shadow-md transform translate-x-1' : 'text-cream-50/70 border-transparent hover:border-gold-500/30 hover:bg-maroon-950'}`}
-          >
-            <CalendarCheck className="w-5 h-5 flex-shrink-0" /> RSVPs
-          </button>
+        <nav className="flex flex-col gap-2 flex-1">
+          <NavButton id="dashboard" icon={Activity} label="System Overview" />
+          <NavButton id="guests" icon={Users} label="Captured Leads" />
+          <NavButton id="rsvps" icon={CalendarCheck} label="RSVP Responses" />
         </nav>
+
+        <div className="mt-auto pt-6 border-t border-gray-100 text-center">
+          <a href="/" target="_blank" rel="noreferrer" className="text-sm font-medium text-orange-600 hover:text-orange-700 hover:underline">View Live Site →</a>
+        </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 md:p-14 md:h-screen md:overflow-y-auto w-full relative z-10 transition-all">
+      <main className="flex-1 p-4 md:p-8 lg:p-12 md:max-h-screen md:overflow-y-auto bg-gray-50/50">
+        
+        {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <h2 className="text-4xl font-serif text-gold-500 mb-10 font-bold border-b-2 border-gold-500/20 pb-4 inline-block">System Overview</h2>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <div className="mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard Overview</h2>
+              <p className="text-gray-500 mt-1">Real-time tracking and core metrics for the event.</p>
+            </div>
             
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-14">
-              <div className="bg-maroon-900 p-8 rounded-lg border-2 border-gold-500/30 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gold-500/10 rounded-bl-full group-hover:scale-110 transition-transform" />
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-cream-50/80 text-xs uppercase tracking-[0.2em] font-bold">Page Views</span>
-                  <Eye className="w-6 h-6 text-gold-500" />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              {[
+                { label: 'Page Views', val: data.traffic.pageViews, icon: Eye, color: 'bg-blue-50 text-blue-600' },
+                { label: 'Unique Visitors', val: data.traffic.uniqueVisitors, icon: Activity, color: 'bg-purple-50 text-purple-600' },
+                { label: 'Total Leads', val: data.leads.length, icon: Users, color: 'bg-orange-50 text-orange-600' },
+                { label: 'Total RSVPs', val: data.rsvps.length, icon: CalendarCheck, color: 'bg-green-50 text-green-600' }
+              ].map((stat, i) => (
+                <div key={i} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-2.5 rounded-xl ${stat.color}`}><stat.icon className="w-5 h-5" /></div>
+                  </div>
+                  <div>
+                    <h4 className="text-3xl font-bold text-gray-900">{stat.val}</h4>
+                    <p className="text-sm font-medium text-gray-500 mt-1">{stat.label}</p>
+                  </div>
                 </div>
-                <div className="text-5xl font-serif text-gold-500 font-bold drop-shadow-sm">{data.traffic.pageViews}</div>
-              </div>
-              
-              <div className="bg-maroon-900 p-8 rounded-lg border-2 border-gold-500/30 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gold-500/10 rounded-bl-full group-hover:scale-110 transition-transform" />
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-cream-50/80 text-xs uppercase tracking-[0.2em] font-bold">Unique Visitors</span>
-                  <Users className="w-6 h-6 text-gold-500" />
-                </div>
-                <div className="text-5xl font-serif text-gold-500 font-bold drop-shadow-sm">{data.traffic.uniqueVisitors}</div>
-              </div>
-
-              <div className="bg-maroon-900 p-8 rounded-lg border-2 border-gold-500/30 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gold-500/10 rounded-bl-full group-hover:scale-110 transition-transform" />
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-cream-50/80 text-xs uppercase tracking-[0.2em] font-bold">Total Leads</span>
-                  <Users className="w-6 h-6 text-gold-500" />
-                </div>
-                <div className="text-5xl font-serif text-gold-500 font-bold drop-shadow-sm">{data.leads.length}</div>
-              </div>
-
-              <div className="bg-maroon-900 p-8 rounded-lg border-2 border-gold-500/30 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gold-500/10 rounded-bl-full group-hover:scale-110 transition-transform" />
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-cream-50/80 text-xs uppercase tracking-[0.2em] font-bold">Total RSVPs</span>
-                  <CalendarCheck className="w-6 h-6 text-gold-500" />
-                </div>
-                <div className="text-5xl font-serif text-gold-500 font-bold drop-shadow-sm">{data.rsvps.length}</div>
-              </div>
+              ))}
             </div>
 
-            {/* Activity Stream */}
-            <div className="bg-maroon-900 p-8 rounded-lg border-2 border-gold-500/30 shadow-xl max-w-4xl">
-              <h3 className="text-2xl font-serif text-gold-500 mb-8 font-bold flex items-center gap-3">
-                <Activity className="w-5 h-5" /> Real-Time Activity
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 lg:p-8">
+              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Live Activity Log
               </h3>
-              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-4 hide-scrollbar">
+              <div className="space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                 {data.activities.length === 0 ? (
-                  <p className="text-cream-50/50 font-light italic">No activity recorded yet.</p>
+                  <p className="text-gray-400 italic text-center py-8">No activity recorded yet.</p>
                 ) : (
-                  data.activities.map(act => (
-                    <motion.div 
-                      key={act.id} 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex gap-5 items-start border-b border-gold-500/10 pb-5 last:border-0"
-                    >
-                      <div className="w-2.5 h-2.5 rounded-full bg-gold-500 mt-2 shrink-0 shadow-[0_0_8px_rgba(212,175,55,1)]" />
-                      <div>
-                        <p className="text-cream-50 font-medium text-lg leading-snug">{act.message}</p>
-                        <p className="text-gold-500/60 text-xs mt-2 font-mono uppercase tracking-widest">{new Date(act.timestamp).toLocaleString()}</p>
+                  data.activities.map((act, i) => (
+                    <motion.div key={act.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-orange-100 text-orange-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                        <Activity className="w-4 h-4" />
+                      </div>
+                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-4 md:group-odd:text-right">
+                        <p className="text-gray-800 font-medium">{act.message}</p>
+                        <time className="text-xs font-semibold text-gray-400 mt-2 flex items-center gap-1 md:group-odd:justify-end"><Clock className="w-3 h-3"/> {new Date(act.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time>
                       </div>
                     </motion.div>
                   ))
@@ -130,65 +141,148 @@ const Admin = () => {
           </motion.div>
         )}
 
-        {/* Guests / Leads Tab */}
+        {/* GUESTS TAB */}
         {activeTab === 'guests' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <h2 className="text-4xl font-serif text-gold-500 mb-10 font-bold border-b-2 border-gold-500/20 pb-4 inline-block">Captured Leads</h2>
-            <div className="bg-maroon-900 border-2 border-gold-500/30 rounded-lg overflow-x-auto shadow-2xl max-w-5xl">
-              <table className="w-full text-left min-w-[600px]">
-                <thead className="bg-maroon-950/80 border-b border-gold-500/30">
-                  <tr>
-                    <th className="p-6 text-gold-500 font-sans tracking-[0.2em] text-xs uppercase font-bold">Name</th>
-                    <th className="p-6 text-gold-500 font-sans tracking-[0.2em] text-xs uppercase font-bold">Phone</th>
-                    <th className="p-6 text-gold-500 font-sans tracking-[0.2em] text-xs uppercase font-bold">Recorded At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.leads.length === 0 ? (
-                    <tr><td colSpan="3" className="p-8 text-center text-cream-50/50 italic">No leads captured yet.</td></tr>
-                  ) : (
-                    data.leads.map(lead => (
-                      <tr key={lead.id} className="border-t border-gold-500/10 hover:bg-gold-500/5 transition-colors">
-                        <td className="p-6 font-serif text-lg tracking-wide">{lead.name}</td>
-                        <td className="p-6 font-medium">{lead.phone}</td>
-                        <td className="p-6 text-gold-500/60 text-xs font-mono tracking-widest uppercase">{new Date(lead.timestamp).toLocaleString()}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Captured Leads</h2>
+                <p className="text-gray-500 mt-1 text-sm">Guests who passed the entrance gate.</p>
+              </div>
+              <div className="flex w-full md:w-auto gap-3">
+                <div className="relative flex-1 md:w-64">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="text" placeholder="Search leads..." value={search} onChange={e=>setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm" />
+                </div>
+                <button onClick={() => exportCSV('leads')} className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 active:scale-95 transition-all shadow-sm">
+                  <Download className="w-4 h-4" /> <span className="hidden md:inline">Export</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="grid gap-4 md:hidden">
+              {filteredLeads.map(lead => (
+                <div key={lead.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm relative active:scale-[0.98] transition-transform">
+                  <div className="absolute top-5 right-5 w-8 h-8 bg-orange-50 text-orange-600 rounded-full flex justify-center items-center font-bold text-xs shadow-sm border border-orange-100">{lead.name?.charAt(0)}</div>
+                  <h3 className="font-bold text-lg text-gray-900 mb-1">{lead.name}</h3>
+                  <p className="text-gray-600 font-medium mb-3">{lead.phone}</p>
+                  <div className="grid grid-cols-1 gap-2 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div className="flex border-b border-gray-200 pb-2"><MapPin className="w-3.5 h-3.5 mr-1.5 text-gray-400 shrink-0"/> {lead.loc || 'Unknown'}</div>
+                    <div className="flex border-b border-gray-200 pb-2 break-all font-mono text-blue-600"><Activity className="w-3.5 h-3.5 mr-1.5 text-blue-400 shrink-0"/> {lead.ip || 'Unknown'}</div>
+                    <div className="flex pt-2"><Smartphone className="w-3.5 h-3.5 mr-1.5 text-gray-400 shrink-0"/> {lead.device} ({lead.browser})</div>
+                    <div className="flex pt-2 mt-[-4px]"><Clock className="w-3.5 h-3.5 mr-1.5 text-gray-400 shrink-0"/> {new Date(lead.timestamp).toLocaleDateString()} {new Date(lead.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                  </div>
+                </div>
+              ))}
+              {filteredLeads.length === 0 && <div className="text-center py-10 bg-white rounded-xl border border-gray-200 text-gray-500">No leads found.</div>}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[800px]">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Location</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">IP / Device</th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Recorded At</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredLeads.length === 0 ? (
+                      <tr><td colSpan="5" className="px-6 py-12 text-center text-gray-500">No leads found.</td></tr>
+                    ) : (
+                      filteredLeads.map(lead => (
+                        <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center">
+                              <div className="h-8 w-8 rounded-full bg-orange-50 border border-orange-100 text-orange-600 flex items-center justify-center font-bold text-xs mr-3 shadow-sm">{lead.name?.charAt(0)}</div>
+                              <span className="font-semibold text-gray-900">{lead.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 font-medium text-gray-700">{lead.phone}</td>
+                          <td className="px-6 py-4 text-gray-600 text-sm flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0"/> {lead.loc || 'Unknown'}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1.5 font-mono text-xs text-blue-600 bg-blue-50 border border-blue-100 px-2 py-1 rounded inline-block mb-1">{lead.ip || 'Unknown'}</div>
+                            <div className="text-xs text-gray-500 flex items-center gap-1"><Smartphone className="w-3.5 h-3.5 text-gray-400 shrink-0"/> {lead.device} • {lead.browser}</div>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm text-gray-500 whitespace-nowrap">
+                            {new Date(lead.timestamp).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </motion.div>
         )}
 
-        {/* RSVPs Tab */}
+        {/* RSVPS TAB */}
         {activeTab === 'rsvps' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <h2 className="text-4xl font-serif text-gold-500 mb-10 font-bold border-b-2 border-gold-500/20 pb-4 inline-block">RSVP Responses</h2>
-            <div className="bg-maroon-900 border-2 border-gold-500/30 rounded-lg overflow-x-auto shadow-2xl max-w-6xl">
-              <table className="w-full text-left min-w-[700px]">
-                <thead className="bg-maroon-950/80 border-b border-gold-500/30">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">RSVP Responses</h2>
+                <p className="text-gray-500 mt-1 text-sm">Official attendance confirmations.</p>
+              </div>
+              <div className="flex w-full md:w-auto gap-3">
+                <div className="relative flex-1 md:w-64">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="text" placeholder="Search RSVPs..." value={search} onChange={e=>setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm" />
+                </div>
+                <button onClick={() => exportCSV('rsvps')} className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 active:scale-95 transition-all shadow-sm">
+                  <Download className="w-4 h-4" /> <span className="hidden md:inline">Export</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="grid gap-4 md:hidden">
+              {filteredRSVPs.map(rsvp => (
+                <div key={rsvp.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm relative active:scale-[0.98] transition-transform">
+                  <span className={`absolute top-5 right-5 px-3 py-1 rounded-full text-xs font-bold uppercase border ${rsvp.attending === 'yes' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                    {rsvp.attending === 'yes' ? 'Attending' : 'Declined'}
+                  </span>
+                  <h3 className="font-bold text-lg text-gray-900 mb-1">{rsvp.name}</h3>
+                  <p className="text-gray-600 text-sm mb-3">{rsvp.email}</p>
+                  <div className="text-xs text-gray-500 flex items-center gap-1 border-t border-gray-100 pt-3"><Clock className="w-3.5 h-3.5 text-gray-400"/> Received: {new Date(rsvp.timestamp).toLocaleDateString()} {new Date(rsvp.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                </div>
+              ))}
+              {filteredRSVPs.length === 0 && <div className="text-center py-10 bg-white rounded-xl border border-gray-200 text-gray-500">No RSVPs found.</div>}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="p-6 text-gold-500 font-sans tracking-[0.2em] text-xs uppercase font-bold">Name</th>
-                    <th className="p-6 text-gold-500 font-sans tracking-[0.2em] text-xs uppercase font-bold">Email</th>
-                    <th className="p-6 text-gold-500 font-sans tracking-[0.2em] text-xs uppercase font-bold">Status</th>
-                    <th className="p-6 text-gold-500 font-sans tracking-[0.2em] text-xs uppercase font-bold">Submitted At</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Status</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Submitted At</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {data.rsvps.length === 0 ? (
-                    <tr><td colSpan="4" className="p-8 text-center text-cream-50/50 italic">No RSVPs yet.</td></tr>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredRSVPs.length === 0 ? (
+                    <tr><td colSpan="4" className="px-6 py-12 text-center text-gray-500">No RSVPs found.</td></tr>
                   ) : (
-                    data.rsvps.map(rsvp => (
-                      <tr key={rsvp.id} className="border-t border-gold-500/10 hover:bg-gold-500/5 transition-colors">
-                        <td className="p-6 font-serif text-lg font-bold tracking-wide">{rsvp.name}</td>
-                        <td className="p-6 text-cream-50/80 font-medium">{rsvp.email}</td>
-                        <td className="p-6">
-                          <span className={`px-4 py-2 border-2 rounded-full text-[10px] font-bold uppercase tracking-widest ${rsvp.attending === 'yes' ? 'bg-gold-500/10 text-gold-500 border-gold-500/50' : 'bg-cream-50/5 text-cream-50/70 border-cream-50/30'}`}>
-                            {rsvp.attending === 'yes' ? 'Attending' : 'Declined'}
+                    filteredRSVPs.map(rsvp => (
+                      <tr key={rsvp.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 font-semibold text-gray-900">{rsvp.name}</td>
+                        <td className="px-6 py-4 text-gray-600">{rsvp.email}</td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${rsvp.attending === 'yes' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                            {rsvp.attending === 'yes' ? '✓ Attending' : '✕ Declined'}
                           </span>
                         </td>
-                        <td className="p-6 text-gold-500/60 text-xs font-mono tracking-widest uppercase">{new Date(rsvp.timestamp).toLocaleString()}</td>
+                        <td className="px-6 py-4 text-right text-sm text-gray-500 whitespace-nowrap">
+                          {new Date(rsvp.timestamp).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}
+                        </td>
                       </tr>
                     ))
                   )}

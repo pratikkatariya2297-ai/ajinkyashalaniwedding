@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ClickSparkles from './ui/ClickSparkles';
 import { storage } from '../utils/storage';
+import { getBackgroundMusic } from '../utils/audio';
 
 const LeadCatcher = ({ onAccessGranted }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', phone: '' });
+  const [status, setStatus] = useState('idle');
+  const [formData, setFormData] = useState({ name: '', phone: '', email: '', attending: '', guests: 'just_me' });
 
   useEffect(() => {
     if (sessionStorage.getItem('guest_access')) {
@@ -12,84 +15,172 @@ const LeadCatcher = ({ onAccessGranted }) => {
     } else {
       setIsOpen(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    storage.saveLead(formData);
-    sessionStorage.setItem('guest_access', 'true');
-    setIsOpen(false);
-    setTimeout(onAccessGranted, 800);
+  const fetchMetadata = async () => {
+    let ip = 'Unknown', loc = 'Unknown';
+    const ua = navigator.userAgent;
+    let browser = 'Unknown';
+    if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('SamsungBrowser')) browser = 'Samsung Internet';
+    else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera';
+    else if (ua.includes('Trident')) browser = 'Internet Explorer';
+    else if (ua.includes('Edge')) browser = 'Edge';
+    else if (ua.includes('Chrome')) browser = 'Chrome';
+    else if (ua.includes('Safari')) browser = 'Safari';
+    
+    const device = /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua) ? 'Mobile' : 'Desktop';
+    
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      if (res.ok) {
+        const data = await res.json();
+        ip = data.ip || 'Unknown';
+        loc = `${data.city || ''}, ${data.region || ''}, ${data.country_name || ''}`.replace(/^, | ,|, $/g, '');
+      }
+    } catch(err) { console.warn('IP fetch failed', err); }
+
+    return { ip, loc, browser, device };
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Safety check in case they bypass loader somehow
+    const bgAudio = getBackgroundMusic();
+    if (bgAudio && bgAudio.paused) {
+      bgAudio.play().catch(err => console.log('Audio autoplay blocked', err));
+    }
+
+    setStatus('submitting');
+    
+    const metadata = await fetchMetadata();
+    const finalData = { ...formData, ...metadata };
+    
+    storage.saveRSVP(finalData);
+    storage.saveLead(finalData);
+    
+    sessionStorage.setItem('guest_access', 'true');
+    sessionStorage.setItem('guest_name', formData.name);
+
+    setStatus('success');
+    
+    setTimeout(() => {
+      setIsOpen(false);
+      setTimeout(onAccessGranted, 500);
+    }, 1500);
+  };
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div 
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-maroon-950/80 backdrop-blur-md bg-jaali"
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-maroon-950/80 backdrop-blur-xl bg-jaali"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, filter: 'blur(10px)' }}
           transition={{ duration: 0.8 }}
         >
-          {/* Ornate Wedding Card Envelope Style */}
+          {/* Royal physical card style modal with engaging interactions */}
           <motion.div 
-            className="bg-cream-50 text-maroon-900 w-full max-w-md p-10 md:p-14 relative shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-[4px] border-gold-500 rounded-lg bg-paper"
-            initial={{ scale: 0.95, y: 30 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ duration: 1, ease: 'easeOut' }}
+            className="bg-cream-50 text-maroon-900 w-[95%] max-w-lg p-5 md:p-8 relative shadow-[0_30px_60px_rgba(0,0,0,0.9),0_0_80px_rgba(212,175,55,0.15)] border-[3px] border-gold-500 rounded-xl bg-paper overflow-hidden group max-h-[90vh] overflow-y-auto hide-scrollbar"
+            initial={{ scale: 0.9, y: 50, rotateX: 10 }}
+            animate={{ scale: 1, y: 0, rotateX: 0 }}
+            exit={{ scale: 0.9, y: 50, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
-            {/* Inner elaborate border */}
-            <div className="absolute inset-2 border-[1px] border-maroon-900/30 rounded-md pointer-events-none" />
-            <div className="absolute inset-3 border-[2px] border-gold-500/20 rounded-sm pointer-events-none" />
-            
-            <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center border-2 border-gold-500 rounded-full bg-maroon-900 shadow-lg">
-              <svg viewBox="0 0 24 24" className="w-12 h-12 text-gold-500" fill="currentColor">
-                {/* Traditional Ganesha Silhouette or Elephant */}
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h-2zm0 6h2v2h-2z" />
-              </svg>
+            {/* Glowing inner border effect */}
+            <div className="absolute inset-1 border-[1px] border-gold-500/20 rounded-lg pointer-events-none group-hover:border-gold-500 transition-colors duration-1000 group-hover:bg-gold-500/5" />
+            <div className="absolute inset-2 border-[2px] border-maroon-900/30 border-dashed rounded-md pointer-events-none" />
+
+            <div className="text-center mb-2 relative z-10 mt-0">
+              <p className="font-sanskrit text-gold-500 mb-0 tracking-widest text-sm font-bold">॥ स्वागत ॥</p>
+              <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-maroon-950 mb-1 font-bold drop-shadow-sm">Padharo Sa</h3>
+              <div className="w-12 h-[2px] bg-gold-500 mx-auto mb-1" />
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-maroon-900 via-gold-500 to-maroon-900 bg-[length:200%_auto] animate-shimmer font-sans text-[9px] md:text-xs tracking-[0.2em] uppercase font-bold">We eagerly await your presence</p>
             </div>
 
-            <h2 className="text-4xl font-serif text-maroon-950 mb-3 tracking-wide drop-shadow-sm font-bold">Padharo</h2>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="w-8 h-[2px] bg-gold-500" />
-              <div className="w-2 h-2 rotate-45 bg-maroon-900" />
-              <div className="w-8 h-[2px] bg-gold-500" />
-            </div>
-            
-            <p className="text-maroon-900/80 font-serif text-sm italic mb-8 leading-relaxed font-semibold">
-              Kindly honor us with your name <br/> to open the wedding scroll.
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-6 text-left relative z-10">
-              <div className="relative group">
-                <input 
-                  type="text" 
-                  required 
-                  value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Your Respected Name" 
-                  className="w-full bg-cream-100 border-b-2 border-maroon-800/40 py-3 px-4 focus:outline-none focus:border-maroon-900 font-serif text-maroon-950 text-xl font-medium transition-colors placeholder-maroon-900/40 rounded-t-sm"
-                />
-              </div>
-              <div className="relative group">
-                <input 
-                  type="tel" 
-                  required 
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Contact Number" 
-                  className="w-full bg-cream-100 border-b-2 border-maroon-800/40 py-3 px-4 focus:outline-none focus:border-maroon-900 font-sans text-maroon-950 text-lg tracking-wider font-semibold transition-colors placeholder-maroon-900/40 rounded-t-sm"
-                />
-              </div>
-              <button 
-                type="submit" 
-                className="w-full bg-maroon-900 text-gold-500 font-sans uppercase tracking-[0.3em] font-medium py-4 mt-8 border-2 border-gold-500 hover:bg-gold-500 hover:text-maroon-950 transition-all shadow-md active:scale-95"
-              >
-                Open Invitation
-              </button>
-            </form>
+            {status === 'success' ? (
+              <motion.div className="text-center py-4 relative z-10" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}>
+                <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-600 rounded-full flex items-center justify-center mx-auto mb-3 text-maroon-950 shadow-[0_0_30px_rgba(212,175,55,0.8)] animate-pulse">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="font-serif text-2xl text-maroon-950 mb-2 font-bold">Dhanyawad!</p>
+                <p className="font-sans text-maroon-900/80 tracking-wide font-semibold text-xs md:text-sm">Your response has been graciously received.</p>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-2 relative z-10">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative group/input">
+                    <input 
+                      type="text" name="name" required value={formData.name} onChange={handleChange}
+                      placeholder="Your Name *" 
+                      className="w-full bg-cream-100/50 border-b-2 border-maroon-900/20 py-2 px-2 focus:outline-none focus:border-gold-500 focus:bg-white font-serif text-maroon-950 text-xs md:text-base placeholder-maroon-900/40 transition-all font-semibold rounded-t-sm shadow-sm"
+                    />
+                  </div>
+                  
+                  <div className="relative group/input">
+                    <input 
+                      type="tel" name="phone" required value={formData.phone} onChange={handleChange}
+                      placeholder="Phone *" 
+                      className="w-full bg-cream-100/50 border-b-2 border-maroon-900/20 py-2 px-2 focus:outline-none focus:border-gold-500 focus:bg-white font-sans text-maroon-900 text-xs md:text-base tracking-wider placeholder-maroon-900/40 transition-all font-semibold rounded-t-sm shadow-sm"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative group/input">
+                    <input 
+                      type="email" name="email" value={formData.email} onChange={handleChange}
+                      placeholder="Email (Optional)" 
+                      className="w-full bg-cream-100/50 border-b-2 border-maroon-900/20 py-2 px-2 focus:outline-none focus:border-gold-500 focus:bg-white font-sans text-maroon-900 text-[10px] md:text-sm tracking-widest placeholder-maroon-900/40 transition-all font-medium rounded-t-sm shadow-sm h-full"
+                    />
+                  </div>
+                  <div className="relative group/input">
+                    <select
+                      name="guests" value={formData.guests} onChange={handleChange}
+                      className="w-full bg-cream-100/50 border-b-2 border-maroon-900/20 py-2 px-2 focus:outline-none focus:border-gold-500 focus:bg-white font-sans text-maroon-900 text-xs md:text-sm tracking-wider font-semibold rounded-t-sm shadow-sm h-full"
+                    >
+                      <option value="just_me">Just Me</option>
+                      <option value="+1">+1 Guest</option>
+                      <option value="+2">+2 Guests</option>
+                      <option value="family">With Family</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <label className={`flex flex-col items-center justify-center p-2 py-3 border-[2px] rounded-lg cursor-pointer transition-all duration-300 text-center shadow-sm hover:shadow-md gap-1 ${formData.attending === 'yes' ? 'bg-gradient-to-br from-gold-400 to-gold-500 border-gold-600 text-maroon-950 scale-[1.02]' : 'bg-cream-100 border-maroon-900/10 text-maroon-900/60 hover:border-gold-400 hover:bg-white'}`}>
+                    <input type="radio" name="attending" required value="yes" onChange={handleChange} className="hidden" />
+                    <span className="text-2xl md:text-3xl mb-1">🌺</span>
+                    <span className={`font-serif text-xs md:text-sm font-bold leading-tight`}>We'd be<br/>Delighted!</span>
+                  </label>
+                  <label className={`flex flex-col items-center justify-center p-2 py-3 border-[2px] rounded-lg cursor-pointer transition-all duration-300 text-center shadow-sm hover:shadow-md gap-1 ${formData.attending === 'no' ? 'bg-maroon-900 border-maroon-950 text-gold-500 scale-[1.02]' : 'bg-cream-100 border-maroon-900/10 text-maroon-900/60 hover:border-maroon-900/40 hover:bg-white'}`}>
+                    <input type="radio" name="attending" required value="no" onChange={handleChange} className="hidden" />
+                    <span className="text-2xl md:text-3xl mb-1">🕊️</span>
+                    <span className={`font-serif text-xs md:text-sm font-bold leading-tight`}>Celebrating<br/>from afar</span>
+                  </label>
+                </div>
+                
+                <div className="flex justify-center mt-2 pb-1">
+                  <ClickSparkles color="#FFD700">
+                    <motion.button 
+                      type="submit" disabled={status === 'submitting'}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 md:px-12 relative overflow-hidden group/btn bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans uppercase tracking-[0.2em] font-extrabold py-3 border-2 border-gold-400 rounded-full transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] disabled:opacity-50 text-xs md:text-sm"
+                    >
+                      <span className="absolute inset-0 bg-white/30 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out rounded-full" />
+                      <span className="relative z-10">{status === 'submitting' ? 'Opening...' : 'Complete & Enter'}</span>
+                    </motion.button>
+                  </ClickSparkles>
+                </div>
+              </form>
+            )}
           </motion.div>
         </motion.div>
       )}

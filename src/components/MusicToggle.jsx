@@ -2,31 +2,38 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Music, VolumeX } from 'lucide-react';
 
+import { getBackgroundMusic } from '../utils/audio';
+
 const MusicToggle = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  // Using an audio placeholder URL - user can replace this with actual flute/sitar music later
-  const audioRef = useRef(null);
 
   useEffect(() => {
-    // Create new audio instance
-    // Note: We're using a royalty-free calming instrumental loop as a placeholder
-    audioRef.current = new Audio('https://cdn.pixabay.com/download/audio/2022/01/26/audio_d0c6ff1bc9.mp3?filename=indian-flute-114420.mp3');
-    audioRef.current.loop = true;
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+    // Check if the audio is already playing natively (started by LeadCatcher)
+    const audio = getBackgroundMusic();
+    if (audio) {
+      setIsPlaying(!audio.paused);
+      
+      // Safety net: if it wasn't started by LeadCatcher (e.g. refresh after RSVP), try playing it here
+      if (audio.paused) {
+        audio.play()
+          .then(() => setIsPlaying(true))
+          .catch(e => console.log("Autoplay prevented by browser:", e));
       }
-    };
+    }
   }, []);
 
   const toggleMusic = () => {
+    const audio = getBackgroundMusic();
+    if (!audio) return;
+    
     if (isPlaying) {
-      audioRef.current?.pause();
+      audio.pause();
+      setIsPlaying(false);
     } else {
-      audioRef.current?.play().catch(e => console.log("Audio playback failed:", e));
+      audio.play()
+        .then(() => setIsPlaying(true))
+        .catch(e => console.log("Audio playback failed:", e));
     }
-    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -35,7 +42,7 @@ const MusicToggle = () => {
       className="fixed bottom-6 lg:bottom-12 right-6 lg:right-12 z-50 w-12 h-12 md:w-14 md:h-14 bg-emerald-900 border border-gold-500 rounded-full flex items-center justify-center text-gold-500 shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-110 hover:bg-gold-500 hover:text-emerald-900 transition-all duration-300"
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 9 }} // Delay to appear after loader finishes
+      transition={{ duration: 0.5, delay: 2 }} // Small delay after site reveal
       aria-label="Toggle Background Music"
     >
       {isPlaying ? (

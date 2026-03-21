@@ -1,9 +1,24 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import ClickSparkles from './ui/ClickSparkles';
 
 const Venue = () => {
   return (
-    <section className="py-32 bg-cream-50 text-maroon-950 relative overflow-hidden bg-paper">
+    <section className="pt-32 pb-12 text-maroon-950 relative overflow-hidden bg-cream-50">
+      {/* Moving Ambient Glow Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div 
+          className="absolute top-0 right-0 w-[600px] h-[600px] bg-gold-100/40 rounded-full blur-[100px]"
+          animate={{ x: [0, -100, 0], y: [0, 50, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-maroon-100/30 rounded-full blur-[100px]"
+          animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
       <div className="container mx-auto px-4 max-w-6xl relative z-10">
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           
@@ -30,17 +45,24 @@ const Venue = () => {
               Pune – 411028.
             </p>
 
-            <a 
-              href="https://share.google/7CvusHgvRr4Cgerc7" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-4 px-10 py-5 bg-maroon-900 text-gold-500 font-sans uppercase tracking-[0.2em] font-bold hover:bg-gold-500 hover:text-maroon-950 transition-all duration-300 w-fit mx-auto lg:mx-0 shadow-xl border-2 border-gold-500 active:scale-95 group"
-            >
-              Get Directions
-              <svg className="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
+            <ClickSparkles color="#FFD700">
+              <motion.a 
+                href="https://share.google/7CvusHgvRr4Cgerc7" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative overflow-hidden inline-flex items-center justify-center gap-4 px-10 py-5 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans uppercase tracking-[0.2em] font-bold transition-all duration-300 w-fit mx-auto lg:mx-0 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_50px_rgba(212,175,55,0.8)] border-2 border-gold-400 rounded-full group mt-6"
+              >
+                <span className="absolute inset-0 bg-white/30 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out rounded-full" />
+                <span className="relative z-10 flex items-center gap-4">
+                  Get Directions
+                  <svg className="w-6 h-6 transform group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </span>
+              </motion.a>
+            </ClickSparkles>
           </motion.div>
 
           {/* Map Side */}

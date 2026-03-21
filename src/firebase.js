@@ -1,25 +1,33 @@
 import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
 import { getDatabase, ref, push, set, onValue, serverTimestamp } from 'firebase/database';
 
 // ─── Firebase Config ──────────────────────────────────
-// Fill these in .env after creating a Firebase project at console.firebase.google.com
+// Production credentials
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyBCPn8etyBItglkA1QFo0biuWh6uJbKY1I",
+  authDomain: "ajinkya-shalini.firebaseapp.com",
+  databaseURL: "https://ajinkya-shalini-default-rtdb.firebaseio.com", // Required for Realtime Database
+  projectId: "ajinkya-shalini",
+  storageBucket: "ajinkya-shalini.firebasestorage.app",
+  messagingSenderId: "478689324822",
+  appId: "1:478689324822:web:c6c857167580ef32e76a37",
+  measurementId: "G-K5LS161CW5"
 };
 
 // Detect if Firebase is configured
-const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY_HERE';
+const isConfigured = !!firebaseConfig.apiKey;
 
 let app = null;
 let db = null;
+let analytics = null;
 
 if (isConfigured) {
   app = initializeApp(firebaseConfig);
   db = getDatabase(app);
+  if (typeof window !== 'undefined') {
+    analytics = getAnalytics(app);
+  }
 }
 
 // ─── Session ID ───────────────────────────────────────
@@ -112,4 +120,4 @@ export function subscribeToPresence(callback) {
   return unsub;
 }
 
-export { isConfigured };
+export { db, analytics, isConfigured };
