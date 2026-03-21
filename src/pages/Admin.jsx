@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Activity, Eye, CalendarCheck, Crown, Search, Download, Menu, X, MapPin, Smartphone, Clock, Music, ArrowRight, Filter, ChevronRight, Star } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue } from 'firebase/database';
+import { subscribeToPresence } from '../firebase';
 
 const Admin = () => {
   const [data, setData] = useState({ 
@@ -11,7 +12,8 @@ const Admin = () => {
     activities: [], 
     performances: [],
     traffic: { pageViews: 0, uniqueVisitors: 0 },
-    dailyTraffic: []
+    dailyTraffic: [],
+    presence: {}
   });
   const [activeTab, setActiveTab] = useState('dashboard');
   const [search, setSearch] = useState('');
@@ -54,8 +56,12 @@ const Admin = () => {
       setData(prev => ({ ...prev, performances: Object.entries(vals).map(([id, v]) => ({ id, ...v })).sort((a,b) => (b.submittedAt || 0) - (a.submittedAt || 0)) }));
     });
 
+    const unsubPresence = subscribeToPresence((pres) => {
+      setData(prev => ({ ...prev, presence: pres }));
+    });
+
     return () => {
-      unsubLeads(); unsubRSVPs(); unsubActivity(); unsubTraffic(); unsubPerformances();
+      unsubLeads(); unsubRSVPs(); unsubActivity(); unsubTraffic(); unsubPerformances(); unsubPresence();
     };
   }, []);
 
@@ -187,7 +193,7 @@ const Admin = () => {
                   { label: 'Total Views', val: data.traffic.pageViews, icon: Eye, bg: 'from-blue-600/20 to-blue-400/5', border: 'border-blue-500/30', color: 'text-blue-400' },
                   { label: 'Guests Joined', val: data.traffic.uniqueVisitors, icon: Activity, bg: 'from-purple-600/20 to-purple-400/5', border: 'border-purple-500/30', color: 'text-purple-400' },
                   { label: 'Leads Hooked', val: data.leads.length, icon: Users, bg: 'from-orange-600/20 to-orange-400/5', border: 'border-orange-500/30', color: 'text-orange-400' },
-                  { label: 'Form RSVPs', val: data.rsvps.length, icon: CalendarCheck, bg: 'from-green-600/20 to-green-400/5', border: 'border-green-500/30', color: 'text-green-400' }
+                  { label: 'Live Now', val: Object.keys(data.presence || {}).length, icon: Smartphone, bg: 'from-green-600/20 to-green-400/5', border: 'border-green-500/30', color: 'text-green-400' }
                 ].map((stat, i) => (
                   <motion.div key={i} className={`bg-gradient-to-br ${stat.bg} ${stat.border} p-6 rounded-3xl backdrop-blur-xl border relative group hover:scale-[1.02] transition-all`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}>
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><stat.icon className="w-12 h-12" /></div>
@@ -308,6 +314,32 @@ const Admin = () => {
                     <p className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase mb-6 font-sans">Sangeet Lineup</p>
                     <button onClick={() => setActiveTab('performances')} className="px-6 py-2 bg-gold-500/10 border border-gold-500/30 text-gold-500 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-gold-500 hover:text-maroon-950 transition-all font-sans">View Full Lineup</button>
                   </div>
+
+                  {/* Live Guests List */}
+                  {Object.keys(data.presence).length > 0 && (
+                    <div className="bg-green-500/5 backdrop-blur-2xl rounded-4xl border border-green-500/20 p-8 shadow-2xl font-sans">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
+                        <h3 className="text-lg font-serif font-bold text-green-400 capitalize">Online Now</h3>
+                      </div>
+                      <div className="space-y-4">
+                        {Object.entries(data.presence).map(([id, p]) => (
+                          <div key={id} className="flex items-center justify-between group/live">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-[10px] font-bold text-green-500 border border-green-500/20 group-hover/live:bg-green-500 group-hover/live:text-maroon-950 transition-all">
+                                {p.name?.charAt(0) || 'G'}
+                              </div>
+                              <div className="text-left">
+                                <p className="text-xs font-bold text-cream-50/80 group-hover/live:text-green-400 transition-colors uppercase tracking-tight">{p.name || 'Anonymous'}</p>
+                                <p className="text-[9px] text-white/20 uppercase tracking-widest font-bold">{p.device} • {p.section || 'Browsing'}</p>
+                              </div>
+                            </div>
+                            <span className="text-[9px] font-mono text-green-500/40 font-bold tracking-tighter">LIVE</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>

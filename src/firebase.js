@@ -84,17 +84,50 @@ export function initScrollTracking() {
 // ─── Update Active Presence ───────────────────────────
 export function initPresence(guestName = 'Guest') {
   if (!db) return () => {};
-  const presenceRef = ref(db, `presence/${SESSION_ID}`);
-  const data = { name: guestName, device: DEVICE, lastSeen: serverTimestamp(), section: 'Hero' };
-  set(presenceRef, data);
-  const iv = setInterval(() => set(presenceRef, { ...data, lastSeen: serverTimestamp() }), 30000);
-  return () => { clearInterval(iv); set(presenceRef, null); };
+  
+  // Reference to the special '.info/connected' node to detect connection state
+  const connectedRef = ref(db, '.info/connected');
+  const myPresenceRef = ref(db, `presence/${SESSION_ID}`);
+
+  const unsub = onValue(connectedRef, (snap) => {
+    if (snap.val() === true) {
+      // We're connected (or reconnected)! 
+      // Set up onDisconnect to remove this node when we lose connection
+      onDisconnect(myPresenceRef).remove();
+
+      // Set our presence data
+      set(myPresenceRef, {
+        name: guestName,
+        device: DEVICE,
+        lastSeen: serverTimestamp(),
+        url: window.location.pathname,
+        online: true
+      });
+    }
+  });
+
+  // Fallback: update lastSeen occasionally to prune stale sessions if onDisconnect fails
+  const iv = setInterval(() => {
+    set(ref(db, `presence/${SESSION_ID}/lastSeen`), serverTimestamp());
+  }, 60000);
+
+  return () => {
+    unsub();
+    clearInterval(iv);
+    set(myPresenceRef, null);
+  };
+}
+
+export function updatePresenceName(newName) {
+  if (!db) return;
+  set(ref(db, `presence/${SESSION_ID}/name`), newName);
 }
 
 // ─── Update Current Section ───────────────────────────
 export function updatePresenceSection(sectionName) {
   if (!db) return;
   set(ref(db, `presence/${SESSION_ID}/section`), sectionName);
+  set(ref(db, `presence/${SESSION_ID}/url`), window.location.pathname);
 }
 
 // ─── Subscribe to Real-Time Activity (for Admin) ──────

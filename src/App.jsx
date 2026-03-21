@@ -9,6 +9,7 @@ import PerformanceSignup from './components/PerformanceSignup';
 import LeadCatcher from './components/LeadCatcher';
 import MusicToggle from './components/MusicToggle';
 import { storage } from './utils/storage';
+import { initPresence } from './firebase';
 import logo from './assets/logo.png';
 
 const Butterfly = lazy(() => import('./components/Butterfly'));
@@ -18,6 +19,8 @@ const App = () => {
 
   useEffect(() => {
     storage.incrementPageView();
+    const cleanupPresence = initPresence();
+    return () => cleanupPresence();
   }, []);
 
   return (

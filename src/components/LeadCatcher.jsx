@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ClickSparkles from './ui/ClickSparkles';
 import { storage } from '../utils/storage';
 import { getBackgroundMusic } from '../utils/audio';
+import { updatePresenceName } from '../firebase';
 
 const LeadCatcher = ({ onAccessGranted }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +12,8 @@ const LeadCatcher = ({ onAccessGranted }) => {
 
   useEffect(() => {
     if (sessionStorage.getItem('guest_access')) {
+      const savedName = sessionStorage.getItem('guest_name');
+      if (savedName) updatePresenceName(savedName);
       onAccessGranted();
     } else {
       setIsOpen(true);
@@ -64,6 +67,8 @@ const LeadCatcher = ({ onAccessGranted }) => {
     
     await storage.saveRSVP(finalData);
     await storage.saveLead(finalData);
+    
+    updatePresenceName(formData.name);
     
     sessionStorage.setItem('guest_access', 'true');
     sessionStorage.setItem('guest_name', formData.name);
