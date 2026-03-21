@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
-import App from './App.jsx'
+import Home from './pages/Home.jsx'
 import Admin from './pages/Admin.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<App />} />
+          <Route path="/" element={<Home />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </BrowserRouter>

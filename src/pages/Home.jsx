@@ -9,6 +9,7 @@ import Wardrobe from '../components/Wardrobe';
 import LeadCatcher from '../components/LeadCatcher';
 import PerformanceSignup from '../components/PerformanceSignup';
 import { storage } from '../utils/storage';
+import { initPresence } from '../firebase';
 
 const Home = () => {
   const [accessGranted, setAccessGranted] = useState(false);
@@ -17,6 +18,8 @@ const Home = () => {
 
   useEffect(() => {
     storage.incrementPageView();
+    const cleanupPresence = initPresence();
+    return () => cleanupPresence();
   }, []);
 
   return (
