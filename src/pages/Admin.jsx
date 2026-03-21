@@ -18,6 +18,8 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [search, setSearch] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(sessionStorage.getItem('admin_auth') === 'true');
+  const [pin, setPin] = useState('');
 
   useEffect(() => {
     if (!db) return;
@@ -98,6 +100,39 @@ const Admin = () => {
       {activeTab === id && <ChevronRight className="w-4 h-4 relative z-10 text-maroon-950" />}
     </button>
   );
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-maroon-950 flex items-center justify-center p-6 relative overflow-hidden font-sans">
+        <div className="fixed inset-0 z-0 bg-jaali opacity-20 pointer-events-none" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="bg-black/40 backdrop-blur-3xl p-10 rounded-[3rem] border-2 border-gold-500/30 w-full max-w-md text-center shadow-4xl relative z-10"
+        >
+          <div className="w-20 h-20 bg-gold-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-gold-500/20 shadow-[0_0_30px_rgba(212,175,55,0.1)]">
+            <Crown className="w-10 h-10 text-gold-500 animate-glow-pulse" />
+          </div>
+          <h2 className="text-3xl font-serif font-bold text-cream-50 mb-2 uppercase tracking-widest">Royal Access</h2>
+          <p className="text-gold-500/40 text-[10px] font-bold uppercase tracking-[0.4em] mb-10">Private Landing • Admin Only</p>
+          
+          <div className="space-y-6">
+            <input 
+              type="password" placeholder="Enter Secret PIN" value={pin} onChange={e=>setPin(e.target.value)}
+              className="w-full bg-white/5 border border-gold-500/20 rounded-2xl py-4 px-6 text-center text-2xl tracking-[1em] text-gold-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/50 transition-all font-bold placeholder:text-white/10 placeholder:tracking-normal placeholder:text-sm"
+              onKeyDown={e => { if(e.key === 'Enter' && pin === '2297') { setIsAuthenticated(true); sessionStorage.setItem('admin_auth', 'true'); } }}
+            />
+            <button 
+              onClick={() => { if(pin === '2297') { setIsAuthenticated(true); sessionStorage.setItem('admin_auth', 'true'); } else { alert('Access Denied'); setPin(''); } }}
+              className="w-full bg-gold-500 text-maroon-950 font-bold py-4 rounded-2xl uppercase tracking-[0.2em] text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+            >
+              Unlock Dashboard
+            </button>
+          </div>
+          <p className="mt-8 text-[9px] text-white/20 uppercase tracking-[0.2em]">Secured by Ivory Tech Solutions</p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-maroon-950 flex flex-col md:flex-row font-sans text-cream-50 relative overflow-hidden selection:bg-gold-500 selection:text-maroon-950">
@@ -199,8 +234,8 @@ const Admin = () => {
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><stat.icon className="w-12 h-12" /></div>
                     <div className={`p-3 rounded-2xl bg-black/40 w-fit mb-6 shadow-inner ${stat.color}`}><stat.icon className="w-6 h-6" /></div>
                     <div>
-                      <h4 className="text-4xl font-bold font-serif mb-1 tracking-tight">{stat.val}</h4>
-                      <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">{stat.label}</p>
+                      <h4 className="text-4xl font-bold font-serif mb-1 tracking-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{stat.val}</h4>
+                      <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500/60">{stat.label}</p>
                     </div>
                   </motion.div>
                 ))}
