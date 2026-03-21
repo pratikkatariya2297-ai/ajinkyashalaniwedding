@@ -256,39 +256,41 @@ const Admin = () => {
                       </div>
                     </div>
                     
-                    <div className="h-64 flex items-end gap-2 md:gap-4 relative z-10 pt-4">
-                      {data.dailyTraffic.length === 0 ? (
-                        <p className="w-full text-center text-white/10 italic text-xs uppercase tracking-widest py-20">No daily data Yet...</p>
-                      ) : (
-                        data.dailyTraffic.map((day, i) => {
-                          const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
-                          return (
-                            <div key={day.date} className="flex-1 flex flex-col items-center gap-3 group/bar">
-                              <div className="w-full flex flex-col items-center justify-end gap-1 h-full relative">
-                                {/* Tooltip */}
-                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gold-500 text-maroon-950 text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-xl">
-                                  {day.pageViews} Views
+                    <div className="overflow-x-auto relative z-10 pt-4 custom-scrollbar pb-2">
+                      <div className="h-64 flex items-end gap-2 md:gap-4 min-w-[600px] md:min-w-0">
+                        {data.dailyTraffic.length === 0 ? (
+                          <p className="w-full text-center text-white/10 italic text-xs uppercase tracking-widest py-20">No daily data Yet...</p>
+                        ) : (
+                          data.dailyTraffic.map((day, i) => {
+                            const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
+                            return (
+                              <div key={day.date} className="flex-1 flex flex-col items-center gap-3 group/bar">
+                                <div className="w-full flex flex-col items-center justify-end gap-1 h-full relative">
+                                  {/* Tooltip */}
+                                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gold-500 text-maroon-950 text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-xl">
+                                    {day.pageViews} Views • {day.uniqueVisitors || 0} Guests
+                                  </div>
+                                  <motion.div 
+                                    className="w-full bg-gold-500/80 group-hover/bar:bg-gold-400 rounded-t-lg shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                                    initial={{ height: 0 }} 
+                                    animate={{ height: `${(day.pageViews / max) * 100}%` }}
+                                    transition={{ duration: 1, delay: i * 0.05 }}
+                                  />
+                                  <motion.div 
+                                    className="w-[60%] bg-blue-400/80 absolute bottom-0 group-hover/bar:bg-blue-300 rounded-t-sm"
+                                    initial={{ height: 0 }} 
+                                    animate={{ height: `${((day.uniqueVisitors || 0) / max) * 100}%` }}
+                                    transition={{ duration: 1, delay: i * 0.05 + 0.2 }}
+                                  />
                                 </div>
-                                <motion.div 
-                                  className="w-full bg-gold-500/80 group-hover/bar:bg-gold-400 rounded-t-lg shadow-[0_0_15px_rgba(212,175,55,0.2)]"
-                                  initial={{ height: 0 }} 
-                                  animate={{ height: `${(day.pageViews / max) * 100}%` }}
-                                  transition={{ duration: 1, delay: i * 0.05 }}
-                                />
-                                <motion.div 
-                                  className="w-[60%] bg-blue-400/80 absolute bottom-0 group-hover/bar:bg-blue-300 rounded-t-sm"
-                                  initial={{ height: 0 }} 
-                                  animate={{ height: `${((day.uniqueVisitors || 0) / max) * 100}%` }}
-                                  transition={{ duration: 1, delay: i * 0.05 + 0.2 }}
-                                />
+                                <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter group-hover/bar:text-gold-500 transition-colors">
+                                  {day.date.split('-').slice(1).join('/')}
+                                </span>
                               </div>
-                              <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter group-hover/bar:text-gold-500 transition-colors">
-                                {day.date.split('-').slice(1).join('/')}
-                              </span>
-                            </div>
-                          );
-                        })
-                      )}
+                            );
+                          })
+                        )}
+                      </div>
                     </div>
                   </div>
 

@@ -69,12 +69,12 @@ const App = () => {
                   
                   <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8">
                     <a 
-                      href="https://wa.me/91848404888?text=Hi!%20I%20want%20to%20create%20a%20wedding%20info%20landing%20page"
+                      href="https://wa.me/918329588317?text=Hi!%20I%20want%20to%20create%20a%20wedding%20info%20landing%20page"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-6 py-2.5 bg-maroon-900/40 border border-gold-500/30 text-gold-400 text-xs uppercase font-bold tracking-widest rounded-full hover:bg-gold-500 hover:text-maroon-950 transition-all duration-300 backdrop-blur-sm"
                     >
-                      Crafted by Ivory Tech Solutions
+                      Contact Ivory Tech Solutions
                     </a>
 
                     <a 

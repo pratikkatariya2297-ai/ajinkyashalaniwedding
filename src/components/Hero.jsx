@@ -69,8 +69,42 @@ const Hero = () => {
     });
   };
 
+  const handleCalendarClick = (e) => {
+    e.preventDefault();
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    
+    if (isApple) {
+      // Apple Calendar uses .ics files
+      const icsMsg = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'BEGIN:VEVENT',
+        'URL:' + window.location.href,
+        'DTSTART:20260426T000000Z',
+        'DTEND:20260426T230000Z',
+        'SUMMARY:Ajinkya & Shalini Wedding 💍',
+        'DESCRIPTION:Join us to celebrate the wedding of Ajinkya & Shalini! 🌸',
+        'LOCATION:Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune – 411028',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\n');
+      
+      const blob = new Blob([icsMsg], { type: 'text/calendar;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'wedding_invite.ics');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // Android/Desktop defaults to Google Calendar
+      window.open(buildCalendarUrl(), '_blank');
+    }
+  };
+
   return (
-    <section className="relative w-full min-h-[100dvh] pt-20 pb-32 flex flex-col items-center justify-center bg-maroon-950 border-b-8 border-gold-500 shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-10 overflow-hidden">
+    <section className="relative w-full min-h-[100dvh] pt-20 pb-48 md:pb-32 flex flex-col items-center justify-center bg-maroon-950 border-b-8 border-gold-500 shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-10 overflow-hidden">
 
       {/* Rose Petals — rendered at fixed position to overlay everything */}
       {petals.map(p => (
@@ -187,17 +221,15 @@ const Hero = () => {
 
           {/* Add to Calendar button */}
           <ClickSparkles color="#FFD700">
-            <a
-              href={buildCalendarUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleCalendarClick}
               className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans text-[11px] md:text-sm tracking-[0.25em] uppercase font-extrabold rounded-full mt-2 shadow-[0_0_30px_rgba(212,175,55,0.7)] hover:shadow-[0_0_50px_rgba(212,175,55,1)] hover:scale-105 border-2 border-gold-300 transition-all duration-300 active:scale-95 group"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 transition-transform group-hover:scale-125" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               Add to Calendar
-            </a>
+            </button>
           </ClickSparkles>
         </motion.div>
 
