@@ -56,7 +56,7 @@ const App = () => {
               <div className="h-0.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent w-32 mx-auto mb-6" />
               
               <div className="flex flex-col items-center gap-3">
-                <p className="text-gold-500/50 text-xs tracking-[4px] uppercase font-medium">Built with Love & Tradition</p>
+                <p className="text-gold-500/50 text-xs tracking-[4px] uppercase font-medium">All rights reserved by Ivory Tech Solutions</p>
                 
                 <a 
                   href="https://wa.me/91848404888?text=Hi!%20I%20want%20to%20create%20a%20wedding%20info%20landing%20page"
@@ -67,12 +67,12 @@ const App = () => {
                   Crafted by Ivory Tech Solutions | WhatsApp: 84840 4888
                 </a>
 
-                <button 
-                  onClick={() => alert("Admin Portal Restricted.") /* Replace with actual admin route later if needed */}
-                  className="text-maroon-900/30 text-[8px] uppercase tracking-widest hover:text-maroon-900/80 transition-colors mt-8"
+                <a 
+                  href="/admin"
+                  className="text-gold-500/30 text-[10px] uppercase tracking-[0.2em] font-bold hover:text-gold-500 transition-all duration-300 mt-8 border border-gold-500/10 px-6 py-2 rounded-full hover:bg-gold-500/10"
                 >
-                  Admin Login
-                </button>
+                  Admin Portal
+                </a>
               </div>
             </footer>
 
