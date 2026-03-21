@@ -2,85 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import GlobalFestiveElements from './GlobalFestiveElements';
 
-// Build a Google Calendar URL
-const toGoogleCalUrl = (event) => {
-  // Parse date + time e.g. "24 April 2026" + "Evening" -> fallback to midnight
-  const months = { January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11 };
-  const parts = event.date.split(' ');
-  const day = parseInt(parts[0], 10);
-  const month = months[parts[1]];
-  const year = parseInt(parts[2], 10);
-  const timeStr = event.time;
-  let hour = 0, minute = 0;
-  if (timeStr && timeStr.includes(':')) {
-    const [h, mPart] = timeStr.split(':');
-    hour = parseInt(h, 10);
-    minute = parseInt(mPart, 10);
-    if (timeStr.toLowerCase().includes('pm') && hour !== 12) hour += 12;
-    if (timeStr.toLowerCase().includes('am') && hour === 12) hour = 0;
-  } else if (timeStr.toLowerCase() === 'evening') {
-    hour = 18;
-  }
-  const pad = n => String(n).padStart(2, '0');
-  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00`;
-  // +2 hours end
-  let endHour = hour + 2;
-  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(endHour)}${pad(minute)}00`;
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: `${event.title} – Ajinkya & Shalini Wedding`,
-    dates: `${dtStart}/${dtEnd}`,
-    details: event.description,
-    location: 'Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune 411028',
-  });
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-};
-
-// Build and trigger an .ics download for Apple Calendar
-const downloadICS = (event) => {
-  const months = { January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11 };
-  const parts = event.date.split(' ');
-  const day = parseInt(parts[0], 10);
-  const month = months[parts[1]];
-  const year = parseInt(parts[2], 10);
-  const timeStr = event.time;
-  let hour = 0, minute = 0;
-  if (timeStr && timeStr.includes(':')) {
-    const [h, mPart] = timeStr.split(':');
-    hour = parseInt(h, 10);
-    minute = parseInt(mPart, 10);
-    if (timeStr.toLowerCase().includes('pm') && hour !== 12) hour += 12;
-    if (timeStr.toLowerCase().includes('am') && hour === 12) hour = 0;
-  } else if (timeStr.toLowerCase() === 'evening') {
-    hour = 18;
-  }
-  const pad = n => String(n).padStart(2, '0');
-  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00`;
-  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(hour+2)}${pad(minute)}00`;
-  const now = new Date().toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
-  const ics = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Ivory Tech Solutions//Wedding//EN',
-    'BEGIN:VEVENT',
-    `UID:${event.title.replace(/\s/g,'-')}-ajinkya-shalini@ivorytech`,
-    `DTSTAMP:${now}`,
-    `DTSTART;TZID=Asia/Kolkata:${dtStart}`,
-    `DTEND;TZID=Asia/Kolkata:${dtEnd}`,
-    `SUMMARY:${event.title} – Ajinkya & Shalini Wedding`,
-    `DESCRIPTION:${event.description}`,
-    'LOCATION:Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune 411028',
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ].join('\r\n');
-  const blob = new Blob([ics], { type: 'text/calendar' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${event.title.replace(/\s/g,'-')}-AjinkyaShaliniWedding.ics`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
+import { handleSmartCalendarClick } from '../utils/calendar';
 
 const events = [
   {
@@ -147,24 +69,17 @@ const TimelineCard = ({ event, index }) => {
       <p className={`text-maroon-900/80 font-sans font-medium leading-relaxed relative z-10 text-[15px] ${isEven ? 'md:text-right' : ''}`}>
         {event.description}
       </p>
-      {/* Calendar Buttons */}
-      <div className={`flex flex-wrap gap-2 mt-4 relative z-10 ${isEven ? 'md:justify-end' : ''}`}>
+      {/* Consolidated Calendar Button */}
+      <div className={`mt-4 relative z-10 ${isEven ? 'md:justify-end' : ''}`}>
         <button
-          onClick={() => downloadICS(event)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-maroon-900/20 bg-maroon-50/60 text-maroon-800 text-[10px] font-bold tracking-wider uppercase hover:border-gold-500 hover:bg-gold-50 hover:text-maroon-950 transition-all duration-200 shadow-sm"
+          onClick={() => handleSmartCalendarClick(event)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans text-[10px] tracking-[0.2em] uppercase font-extrabold rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.8)] border border-gold-300 transition-all duration-300 active:scale-95 group/cal"
         >
-          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z"/></svg>
-          Apple Calendar
+          <svg className="w-4 h-4 transition-transform group-hover/cal:scale-125" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Add to Calendar
         </button>
-        <a
-          href={toGoogleCalUrl(event)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-maroon-900/20 bg-maroon-50/60 text-maroon-800 text-[10px] font-bold tracking-wider uppercase hover:border-gold-500 hover:bg-gold-50 hover:text-maroon-950 transition-all duration-200 shadow-sm"
-        >
-          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z"/></svg>
-          Google Calendar
-        </a>
       </div>
     </div>
   );

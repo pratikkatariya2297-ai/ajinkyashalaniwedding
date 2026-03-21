@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import logo from '../assets/logo.png';
 import ClickSparkles from './ui/ClickSparkles';
+import { handleSmartCalendarClick } from '../utils/calendar';
 
 const PETAL_COLORS = [
   '#d3112d',
@@ -27,15 +28,6 @@ function generatePetals(count) {
   }));
 }
 
-// Build Google Calendar URL
-const buildCalendarUrl = () => {
-  const text = encodeURIComponent('Ajinkya & Shalini Wedding 💍');
-  const dates = '20260426T000000Z/20260426T230000Z';
-  const location = encodeURIComponent('Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune – 411028');
-  const details = encodeURIComponent('Join us to celebrate the wedding of Ajinkya & Shalini! 🌸');
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&location=${location}&details=${details}`;
-};
-
 const Hero = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [roseTrigger, setRoseTrigger] = useState(0);
@@ -60,7 +52,6 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // When trigger fires, generate fresh stable petal data
   const handleLogoTap = () => {
     setRoseTrigger(prev => {
       const next = prev + 1;
@@ -69,38 +60,14 @@ const Hero = () => {
     });
   };
 
-  const handleCalendarClick = (e) => {
+  const onCalendarClick = (e) => {
     e.preventDefault();
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    
-    if (isApple) {
-      // Apple Calendar uses .ics files
-      const icsMsg = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'BEGIN:VEVENT',
-        'URL:' + window.location.href,
-        'DTSTART:20260426T000000Z',
-        'DTEND:20260426T230000Z',
-        'SUMMARY:Ajinkya & Shalini Wedding 💍',
-        'DESCRIPTION:Join us to celebrate the wedding of Ajinkya & Shalini! 🌸',
-        'LOCATION:Ajinkya Tara Resort, Near Namdev Baug, Pune–Solapur Road, Hadapsar, Pune – 411028',
-        'END:VEVENT',
-        'END:VCALENDAR'
-      ].join('\n');
-      
-      const blob = new Blob([icsMsg], { type: 'text/calendar;charset=utf-8' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'wedding_invite.ics');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      // Android/Desktop defaults to Google Calendar
-      window.open(buildCalendarUrl(), '_blank');
-    }
+    handleSmartCalendarClick({
+      title: 'Ajinkya & Shalini Wedding 💍',
+      date: '26 April 2026',
+      time: '06:15 PM',
+      description: 'Join us to celebrate the wedding of Ajinkya & Shalini! 🌸'
+    });
   };
 
   return (
@@ -222,7 +189,7 @@ const Hero = () => {
           {/* Add to Calendar button */}
           <ClickSparkles color="#FFD700">
             <button
-              onClick={handleCalendarClick}
+              onClick={onCalendarClick}
               className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 bg-[length:200%_auto] animate-shimmer text-maroon-950 font-sans text-[11px] md:text-sm tracking-[0.25em] uppercase font-extrabold rounded-full mt-2 shadow-[0_0_30px_rgba(212,175,55,0.7)] hover:shadow-[0_0_50px_rgba(212,175,55,1)] hover:scale-105 border-2 border-gold-300 transition-all duration-300 active:scale-95 group"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 transition-transform group-hover:scale-125" fill="none" viewBox="0 0 24 24" stroke="currentColor">
