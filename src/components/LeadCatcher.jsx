@@ -52,6 +52,11 @@ const LeadCatcher = ({ onAccessGranted }) => {
       bgAudio.play().catch(err => console.log('Audio autoplay blocked', err));
     }
 
+    if (!formData.attending) {
+      alert('Padharo Sa! Please let us know if you are attending.');
+      return;
+    }
+
     setStatus('submitting');
     
     const metadata = await fetchMetadata();
@@ -155,12 +160,12 @@ const LeadCatcher = ({ onAccessGranted }) => {
                 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <label className={`flex flex-col items-center justify-center p-2 py-3 border-[2px] rounded-lg cursor-pointer transition-all duration-300 text-center shadow-sm hover:shadow-md gap-1 ${formData.attending === 'yes' ? 'bg-gradient-to-br from-gold-400 to-gold-500 border-gold-600 text-maroon-950 scale-[1.02]' : 'bg-cream-100 border-maroon-900/10 text-maroon-900/60 hover:border-gold-400 hover:bg-white'}`}>
-                    <input type="radio" name="attending" required value="yes" onChange={handleChange} className="hidden" />
+                    <input type="radio" name="attending" value="yes" onChange={handleChange} className="hidden" />
                     <span className="text-2xl md:text-3xl mb-1">🌺</span>
                     <span className={`font-serif text-xs md:text-sm font-bold leading-tight`}>We'd be<br/>Delighted!</span>
                   </label>
                   <label className={`flex flex-col items-center justify-center p-2 py-3 border-[2px] rounded-lg cursor-pointer transition-all duration-300 text-center shadow-sm hover:shadow-md gap-1 ${formData.attending === 'no' ? 'bg-maroon-900 border-maroon-950 text-gold-500 scale-[1.02]' : 'bg-cream-100 border-maroon-900/10 text-maroon-900/60 hover:border-maroon-900/40 hover:bg-white'}`}>
-                    <input type="radio" name="attending" required value="no" onChange={handleChange} className="hidden" />
+                    <input type="radio" name="attending" value="no" onChange={handleChange} className="hidden" />
                     <span className="text-2xl md:text-3xl mb-1">🕊️</span>
                     <span className={`font-serif text-xs md:text-sm font-bold leading-tight`}>Celebrating<br/>from afar</span>
                   </label>
