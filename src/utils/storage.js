@@ -8,18 +8,28 @@ const KEYS = {
   TRAFFIC: 'traffic'
 };
 
+const withTimeout = (promise, ms = 3000) => {
+  let timeout = new Promise((_, reject) => {
+    let id = setTimeout(() => {
+      clearTimeout(id);
+      reject(new Error('Firebase operation timed out'));
+    }, ms);
+  });
+  return Promise.race([promise, timeout]);
+};
+
 export const storage = {
   // LEADS
   saveLead: async (lead) => {
     if (!db) return;
     try {
-      await push(ref(db, KEYS.LEADS), {
+      await withTimeout(push(ref(db, KEYS.LEADS), {
         ...lead,
         timestamp: serverTimestamp()
-      });
+      }));
       storage.logActivity(`Lead captured: ${lead.name}`);
     } catch (err) {
-      console.error('Failed to save lead to Firebase', err);
+      console.warn('Firebase lead save timed out/failed', err);
     }
   },
   
@@ -27,34 +37,34 @@ export const storage = {
   saveRSVP: async (rsvp) => {
     if (!db) return;
     try {
-      await push(ref(db, KEYS.RSVPS), {
+      await withTimeout(push(ref(db, KEYS.RSVPS), {
         ...rsvp,
         timestamp: serverTimestamp()
-      });
+      }));
       storage.logActivity(`New RSVP from ${rsvp.name}: ${rsvp.attending}`);
     } catch (err) {
-      console.error('Failed to save RSVP to Firebase', err);
+      console.warn('Firebase RSVP save timed out/failed', err);
     }
   },
 
   // ACTIVITY
   logActivity: (message) => {
     if (!db) return;
-    push(ref(db, KEYS.ACTIVITY), {
+    withTimeout(push(ref(db, KEYS.ACTIVITY), {
       message,
       timestamp: serverTimestamp()
-    }).catch(() => {});
+    })).catch(() => {});
   },
 
   // TRAFFIC
   incrementPageView: () => {
     if (!db) return;
     // Increment total page views
-    set(ref(db, `${KEYS.TRAFFIC}/pageViews`), increment(1)).catch(() => {});
+    withTimeout(set(ref(db, `${KEYS.TRAFFIC}/pageViews`), increment(1))).catch(() => {});
     
     // Check for unique visitor via sessionStorage (local to session)
     if (!sessionStorage.getItem('has_counted_unique')) {
-      set(ref(db, `${KEYS.TRAFFIC}/uniqueVisitors`), increment(1)).catch(() => {});
+      withTimeout(set(ref(db, `${KEYS.TRAFFIC}/uniqueVisitors`), increment(1))).catch(() => {});
       sessionStorage.setItem('has_counted_unique', 'true');
     }
   },
@@ -63,13 +73,13 @@ export const storage = {
   savePerformance: async (performance) => {
     if (!db) return;
     try {
-      await push(ref(db, 'performances'), {
+      await withTimeout(push(ref(db, 'performances'), {
         ...performance,
         submittedAt: serverTimestamp()
-      });
+      }));
       storage.logActivity(`New Performance: ${performance.name} (${performance.songTitle || 'Act'})`);
     } catch (err) {
-      console.error('Failed to save performance to Firebase', err);
+      console.warn('Firebase performance save timed out/failed', err);
     }
   },
 
