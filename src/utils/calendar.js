@@ -36,8 +36,8 @@ export const getGoogleCalendarUrl = (event) => {
   }
 
   const pad = n => String(n).padStart(2, '0');
-  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00Z`;
-  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(hour+2)}${pad(minute)}00Z`;
+  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00`;
+  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(hour+2)}${pad(minute)}00`;
 
   const params = new URLSearchParams({
     action: 'TEMPLATE',
@@ -78,8 +78,8 @@ export const downloadICS = (event) => {
   }
 
   const pad = n => String(n).padStart(2, '0');
-  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00Z`;
-  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(hour+2)}${pad(minute)}00Z`;
+  const dtStart = `${year}${pad(month+1)}${pad(day)}T${pad(hour)}${pad(minute)}00`;
+  const dtEnd = `${year}${pad(month+1)}${pad(day)}T${pad(hour+2)}${pad(minute)}00`;
 
   const icsMsg = [
     'BEGIN:VCALENDAR',

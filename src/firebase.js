@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
-import { getDatabase, ref, push, set, onValue, serverTimestamp } from 'firebase/database';
+import { getDatabase, ref, push, set, onValue, serverTimestamp, onDisconnect } from 'firebase/database';
 
 // ─── Firebase Config ──────────────────────────────────
 // Production credentials

@@ -13,6 +13,7 @@ import { storage } from '../utils/storage';
 const Home = () => {
   const [accessGranted, setAccessGranted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showRSVP, setShowRSVP] = useState(false);
 
   useEffect(() => {
     storage.incrementPageView();
@@ -21,7 +22,15 @@ const Home = () => {
   return (
     <div className="bg-paper text-maroon-900 font-sans selection:bg-gold-500/40 selection:text-maroon-950 overflow-x-hidden min-h-screen">
       
-      {!accessGranted && <LeadCatcher onAccessGranted={() => setAccessGranted(true)} />}
+      {(!accessGranted || showRSVP) && (
+        <LeadCatcher 
+          onAccessGranted={() => {
+            setAccessGranted(true);
+            setShowRSVP(false);
+          }} 
+          onClose={showRSVP ? () => setShowRSVP(false) : null}
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {(loading && accessGranted) && (
@@ -38,7 +47,7 @@ const Home = () => {
         }}
       >
         <MusicToggle />
-        <Hero />
+        <Hero onRsvpClick={() => setShowRSVP(true)} />
         <Wardrobe />
         <Timeline />
         <Venue />

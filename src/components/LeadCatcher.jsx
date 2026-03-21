@@ -97,9 +97,9 @@ const LeadCatcher = ({ onAccessGranted }) => {
         >
           {/* Royal physical card style modal with engaging interactions */}
           <motion.div 
-            className="bg-cream-50 text-maroon-900 w-[98%] max-w-lg p-6 md:p-8 relative shadow-[0_30px_60px_rgba(0,0,0,0.9),0_0_80px_rgba(212,175,55,0.15)] border-[3px] border-gold-500 rounded-xl bg-paper overflow-hidden group max-h-[95vh] overflow-y-auto hide-scrollbar"
-            initial={{ scale: 0.9, y: 50, rotateX: 10 }}
-            animate={{ scale: 1, y: 0, rotateX: 0 }}
+            className="bg-cream-50 text-maroon-900 w-[98%] max-w-lg p-6 md:p-8 relative shadow-[0_30px_60px_rgba(0,0,0,0.9),0_0_80px_rgba(212,175,55,0.15)] border-[3px] border-gold-500 rounded-xl bg-paper overflow-hidden group max-h-[90vh] overflow-y-auto hide-scrollbar"
+            initial={{ scale: 0.9, y: 50, rotateX: 10, opacity: 0 }}
+            animate={{ scale: 1, y: 0, rotateX: 0, opacity: 1 }}
             exit={{ scale: 0.9, y: 50, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >

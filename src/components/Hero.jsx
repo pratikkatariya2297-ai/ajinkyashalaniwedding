@@ -28,7 +28,7 @@ function generatePetals(count) {
   }));
 }
 
-const Hero = () => {
+const Hero = ({ onRsvpClick }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [roseTrigger, setRoseTrigger] = useState(0);
   const [petals, setPetals] = useState([]);
@@ -53,11 +53,13 @@ const Hero = () => {
   }, []);
 
   const handleLogoTap = () => {
+    // Both flowers and RSVP
     setRoseTrigger(prev => {
       const next = prev + 1;
       setPetals(generatePetals(next));
       return next;
     });
+    if (onRsvpClick) onRsvpClick();
   };
 
   const onCalendarClick = (e) => {
