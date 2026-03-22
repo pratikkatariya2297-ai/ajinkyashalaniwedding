@@ -270,7 +270,7 @@ const Admin = () => {
                     
                     <div className="relative group/chart_area">
                       {/* Sticky Y-Axis labels */}
-                      <div className="absolute left-0 top-4 bottom-12 w-10 flex flex-col justify-between pointer-events-none z-30 bg-gradient-to-r from-black/20 to-transparent pr-2">
+                      <div className="absolute left-0 top-24 bottom-12 w-10 flex flex-col justify-between pointer-events-none z-30 bg-gradient-to-r from-black/20 to-transparent pr-2">
                         {[1, 0.75, 0.5, 0.25, 0].map((tick, idx) => {
                           const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
                           return (
@@ -280,9 +280,9 @@ const Admin = () => {
                       </div>
 
                       <div className="overflow-x-auto relative z-10 pt-4 custom-scrollbar pb-6 pl-12">
-                        <div className="h-72 flex items-end gap-2 md:gap-3 min-w-max relative pb-10">
+                        <div className="h-84 flex items-end gap-2 md:gap-3 min-w-max relative pb-10 pt-20">
                           {/* Y-Axis Grid Lines */}
-                          <div className="absolute inset-x-0 inset-y-0 pointer-events-none flex flex-col justify-between pt-4 pb-12">
+                          <div className="absolute inset-x-0 inset-y-0 pointer-events-none flex flex-col justify-between pt-24 pb-12">
                              {[1, 0.75, 0.5, 0.25, 0].map((tick, idx) => (
                                <div key={idx} className="w-full flex items-center relative h-0">
                                  <div className="flex-1 h-[1px] bg-white/5 shadow-[0_0_10px_rgba(255,255,255,0.02)]" />
