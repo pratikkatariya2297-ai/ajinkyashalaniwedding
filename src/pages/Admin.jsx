@@ -20,6 +20,7 @@ const Admin = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(sessionStorage.getItem('admin_auth') === 'true');
   const [pin, setPin] = useState('');
+  const [highlightMetric, setHighlightMetric] = useState(null); // 'views' or 'visitors'
 
   useEffect(() => {
     if (!db) return;
@@ -48,8 +49,7 @@ const Admin = () => {
       const val = snap.val() || {};
       const daily = val.daily ? Object.entries(val.daily)
         .map(([date, stats]) => ({ date, ...stats }))
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .slice(-14) : []; // Last 14 days
+        .sort((a, b) => a.date.localeCompare(b.date)) : []; 
       setData(prev => ({ ...prev, traffic: val, dailyTraffic: daily }));
     });
 
@@ -220,7 +220,6 @@ const Admin = () => {
 
         <AnimatePresence mode="wait">
           
-          {/* DASHBOARD TAB */}
           {activeTab === 'dashboard' && (
             <motion.div key="dash" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12 font-sans">
@@ -243,88 +242,120 @@ const Admin = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 font-sans">
                 <div className="lg:col-span-2 flex flex-col gap-8">
-                  {/* Daily Traffic Chart */}
+                  {/* Historical Traffic Chart */}
                   <div className="bg-black/30 backdrop-blur-2xl rounded-4xl border border-gold-500/10 p-8 shadow-3xl relative overflow-hidden group">
                     <div className="absolute inset-0 bg-jaali opacity-5 pointer-events-none" />
-                    <div className="flex justify-between items-center mb-8 relative z-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
                       <h3 className="text-2xl font-serif font-bold text-gold-500 flex items-center gap-3">
-                        <Eye className="w-6 h-6" /> Daily Insights
+                        <Eye className="w-6 h-6" /> Historical Insights
                       </h3>
-                      <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
-                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-gold-500" /> Views</div>
-                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-400" /> Visitors</div>
+                      
+                      <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest bg-black/40 p-2 rounded-xl border border-white/5">
+                        <button 
+                          onClick={() => setHighlightMetric(prev => prev === 'views' ? null : 'views')}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${highlightMetric === 'views' ? 'bg-gold-500 text-maroon-950 shadow-lg' : 'hover:bg-white/5 text-gold-500'}`}
+                        >
+                          <div className={`w-2 h-2 rounded-full ${highlightMetric === 'views' ? 'bg-maroon-950' : 'bg-gold-500'}`} /> 
+                          Views
+                        </button>
+                        <button 
+                          onClick={() => setHighlightMetric(prev => prev === 'visitors' ? null : 'visitors')}
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${highlightMetric === 'visitors' ? 'bg-blue-400 text-maroon-950 shadow-lg' : 'hover:bg-white/5 text-blue-400'}`}
+                        >
+                          <div className={`w-2 h-2 rounded-full ${highlightMetric === 'visitors' ? 'bg-maroon-950' : 'bg-blue-400'}`} /> 
+                          Visitors
+                        </button>
                       </div>
                     </div>
                     
-                    <div className="overflow-x-auto relative z-10 pt-4 custom-scrollbar pb-2">
-                      <div className="h-72 flex items-end gap-2 md:gap-4 min-w-[600px] md:min-w-0 relative px-10">
-                        {/* Y-Axis Grid Lines & Labels */}
-                        <div className="absolute inset-x-0 inset-y-0 pointer-events-none flex flex-col justify-between pt-4 pb-12">
-                           {[1, 0.75, 0.5, 0.25, 0].map((tick, idx) => {
-                             const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
-                             const val = Math.round(max * tick);
-                             return (
-                               <div key={idx} className="w-full flex items-center gap-4 relative">
-                                 <span className="w-8 text-[9px] font-bold text-white/20 text-right">{val}</span>
+                    <div className="relative group/chart_area">
+                      {/* Sticky Y-Axis labels */}
+                      <div className="absolute left-0 top-4 bottom-12 w-10 flex flex-col justify-between pointer-events-none z-30 bg-gradient-to-r from-black/20 to-transparent pr-2">
+                        {[1, 0.75, 0.5, 0.25, 0].map((tick, idx) => {
+                          const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
+                          return (
+                            <span key={idx} className="text-[9px] font-bold text-white/40 text-right">{Math.round(max * tick)}</span>
+                          );
+                        })}
+                      </div>
+
+                      <div className="overflow-x-auto relative z-10 pt-4 custom-scrollbar pb-6 pl-12">
+                        <div className="h-72 flex items-end gap-2 md:gap-3 min-w-max relative pb-10">
+                          {/* Y-Axis Grid Lines */}
+                          <div className="absolute inset-x-0 inset-y-0 pointer-events-none flex flex-col justify-between pt-4 pb-12">
+                             {[1, 0.75, 0.5, 0.25, 0].map((tick, idx) => (
+                               <div key={idx} className="w-full flex items-center relative h-0">
                                  <div className="flex-1 h-[1px] bg-white/5 shadow-[0_0_10px_rgba(255,255,255,0.02)]" />
                                </div>
-                             );
-                           })}
-                        </div>
-
-                        {data.dailyTraffic.length === 0 ? (
-                          <div className="w-full flex items-center justify-center py-20">
-                            <p className="text-white/10 italic text-xs uppercase tracking-widest">No daily data Yet...</p>
+                             ))}
                           </div>
-                        ) : (
-                          data.dailyTraffic.map((day, i) => {
-                            const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
-                            const viewsHeight = (day.pageViews / max) * 100;
-                            const uniqueHeight = ((day.uniqueVisitors || 0) / max) * 100;
 
-                            return (
-                              <div key={day.date} className="flex-1 flex flex-col items-center gap-3 group/bar z-10">
-                                <div className="w-full flex flex-col items-center justify-end gap-1 h-56 relative group/inner">
-                                  {/* Tooltip */}
-                                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-maroon-900/90 backdrop-blur-md border border-gold-500/30 text-gold-500 text-[10px] font-bold px-3 py-2 rounded-xl opacity-0 group-hover/bar:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-30 shadow-2xl scale-75 group-hover/bar:scale-100 -translate-y-2 group-hover/bar:translate-y-0">
-                                    <div className="flex flex-col gap-1 items-center">
-                                      <span className="text-white/60 text-[8px] uppercase tracking-widest mb-1">{new Date(day.date).toLocaleDateString([], {month:'short', day:'numeric'})}</span>
-                                      <span>{day.pageViews} Total Views</span>
-                                      <span className="text-blue-400">{day.uniqueVisitors || 0} Unique Guests</span>
-                                    </div>
-                                    {/* Tooltip Arrow */}
-                                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-gold-500/30" />
-                                  </div>
+                          {data.dailyTraffic.length === 0 ? (
+                            <div className="w-full flex items-center justify-center py-20 min-w-[600px]">
+                              <p className="text-white/10 italic text-xs uppercase tracking-widest">Awaiting historical data...</p>
+                            </div>
+                          ) : (
+                            data.dailyTraffic.map((day, i) => {
+                              const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
+                              const viewsHeight = (day.pageViews / max) * 100;
+                              const uniqueHeight = ((day.uniqueVisitors || 0) / max) * 100;
+                              const isPeak = day.pageViews === max && max > 0;
 
-                                  {/* Page Views Bar */}
-                                  <motion.div 
-                                    className="w-full relative rounded-t-xl overflow-hidden shadow-[0_0_20px_rgba(212,175,55,0.1)] group-hover/bar:shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all"
-                                    initial={{ height: 0 }} 
-                                    animate={{ height: `${viewsHeight}%` }}
-                                    transition={{ type: 'spring', damping: 15, stiffness: 100, delay: i * 0.05 }}
-                                  >
-                                    <div className="absolute inset-0 bg-gradient-to-t from-gold-600 via-gold-500 to-gold-400 group-hover/bar:from-gold-500 group-hover/bar:to-gold-300 transition-colors" />
-                                    <div className="absolute inset-0 opacity-30 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-pulse" />
-                                  </motion.div>
-
-                                  {/* Unique Visitors Bar */}
-                                  <motion.div 
-                                    className="w-[70%] absolute bottom-0 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-md shadow-lg border-t border-white/20 z-20 group-hover/bar:from-blue-500 group-hover/bar:to-blue-300"
-                                    initial={{ height: 0 }} 
-                                    animate={{ height: `${uniqueHeight}%` }}
-                                    transition={{ type: 'spring', damping: 12, stiffness: 100, delay: i * 0.05 + 0.2 }}
-                                  />
+                              return (
+                                <div key={day.date} className="w-10 flex flex-col items-center gap-3 group/bar z-10 relative">
+                                  {isPeak && (
+                                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-black text-gold-500 uppercase tracking-tighter bg-gold-500/10 px-2 py-0.5 rounded-full border border-gold-500/20 shadow-glow">Peak</div>
+                                  )}
                                   
-                                  {/* Glass Highlight on Bar */}
-                                  <div className="absolute inset-0 group-hover/bar:bg-white/5 transition-colors pointer-events-none rounded-t-xl" />
+                                  <div className="w-full flex flex-col items-center justify-end gap-1 h-56 relative group/inner">
+                                    {/* Tooltip */}
+                                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-maroon-900/95 backdrop-blur-xl border border-gold-500/40 text-gold-500 text-[10px] font-bold px-4 py-3 rounded-2xl opacity-0 group-hover/bar:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-3xl scale-75 group-hover/bar:scale-100 -translate-y-4 group-hover/bar:translate-y-0 border-b-2 border-b-gold-500">
+                                      <div className="flex flex-col gap-1.5 items-center">
+                                        <span className="text-white/40 text-[9px] uppercase tracking-[0.2em] font-black mb-1">{new Date(day.date).toLocaleDateString([], {weekday: 'short', month:'short', day:'numeric'})}</span>
+                                        <div className="flex items-center gap-3">
+                                          <div className="flex flex-col items-center">
+                                            <span className="text-white text-lg leading-none">{day.pageViews}</span>
+                                            <span className="text-[7px] text-white/30 uppercase">Views</span>
+                                          </div>
+                                          <div className="w-[1px] h-6 bg-white/10" />
+                                          <div className="flex flex-col items-center">
+                                            <span className="text-blue-400 text-lg leading-none">{day.uniqueVisitors || 0}</span>
+                                            <span className="text-[7px] text-blue-400/40 uppercase">Guests</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-gold-500/40" />
+                                    </div>
+
+                                    {/* Page Views Bar */}
+                                    <motion.div 
+                                      className={`w-full relative rounded-t-xl overflow-hidden shadow-2xl transition-all duration-500 ${highlightMetric === 'visitors' ? 'opacity-20 grayscale brightness-50' : 'opacity-100'}`}
+                                      initial={{ height: 0 }} 
+                                      animate={{ height: `${viewsHeight}%` }}
+                                      transition={{ type: 'spring', damping: 20, stiffness: 80, delay: Math.min(i * 0.03, 1) }}
+                                    >
+                                      <div className={`absolute inset-0 bg-gradient-to-t from-gold-600 via-gold-500 to-gold-400 group-hover/bar:from-gold-400 group-hover/bar:to-gold-200 transition-colors ${isPeak ? 'animate-pulse' : ''}`} />
+                                      {isPeak && <div className="absolute inset-0 bg-white/10 animate-glow-pulse" />}
+                                    </motion.div>
+
+                                    {/* Unique Visitors Bar */}
+                                    <motion.div 
+                                      className={`w-[65%] absolute bottom-0 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg shadow-xl border-t border-white/20 z-20 group-hover/bar:from-blue-400 group-hover/bar:to-blue-200 transition-all duration-500 ${highlightMetric === 'views' ? 'opacity-20 grayscale brightness-50' : 'opacity-100'}`}
+                                      initial={{ height: 0 }} 
+                                      animate={{ height: `${uniqueHeight}%` }}
+                                      transition={{ type: 'spring', damping: 15, stiffness: 80, delay: Math.min(i * 0.03 + 0.1, 1.1) }}
+                                    />
+                                    
+                                    <div className="absolute inset-0 group-hover/bar:bg-white/5 transition-colors pointer-events-none rounded-t-xl" />
+                                  </div>
+                                  <span className="text-[9px] font-black text-white/20 uppercase tracking-tighter group-hover/bar:text-gold-500 group-hover/bar:scale-125 transition-all whitespace-nowrap -rotate-45 mt-2 origin-left">
+                                    {new Date(day.date).toLocaleDateString([], {month:'short', day:'numeric'})}
+                                  </span>
                                 </div>
-                                <span className="text-[10px] font-bold text-white/30 uppercase tracking-tight group-hover/bar:text-gold-500 group-hover/bar:scale-110 transition-all">
-                                  {day.date.split('-').slice(2).join('/')}
-                                </span>
-                              </div>
-                            );
-                          })
-                        )}
+                              );
+                            })
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
