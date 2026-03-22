@@ -257,34 +257,69 @@ const Admin = () => {
                     </div>
                     
                     <div className="overflow-x-auto relative z-10 pt-4 custom-scrollbar pb-2">
-                      <div className="h-64 flex items-end gap-2 md:gap-4 min-w-[600px] md:min-w-0">
+                      <div className="h-72 flex items-end gap-2 md:gap-4 min-w-[600px] md:min-w-0 relative px-10">
+                        {/* Y-Axis Grid Lines & Labels */}
+                        <div className="absolute inset-x-0 inset-y-0 pointer-events-none flex flex-col justify-between pt-4 pb-12">
+                           {[1, 0.75, 0.5, 0.25, 0].map((tick, idx) => {
+                             const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
+                             const val = Math.round(max * tick);
+                             return (
+                               <div key={idx} className="w-full flex items-center gap-4 relative">
+                                 <span className="w-8 text-[9px] font-bold text-white/20 text-right">{val}</span>
+                                 <div className="flex-1 h-[1px] bg-white/5 shadow-[0_0_10px_rgba(255,255,255,0.02)]" />
+                               </div>
+                             );
+                           })}
+                        </div>
+
                         {data.dailyTraffic.length === 0 ? (
-                          <p className="w-full text-center text-white/10 italic text-xs uppercase tracking-widest py-20">No daily data Yet...</p>
+                          <div className="w-full flex items-center justify-center py-20">
+                            <p className="text-white/10 italic text-xs uppercase tracking-widest">No daily data Yet...</p>
+                          </div>
                         ) : (
                           data.dailyTraffic.map((day, i) => {
                             const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
+                            const viewsHeight = (day.pageViews / max) * 100;
+                            const uniqueHeight = ((day.uniqueVisitors || 0) / max) * 100;
+
                             return (
-                              <div key={day.date} className="flex-1 flex flex-col items-center gap-3 group/bar">
-                                <div className="w-full flex flex-col items-center justify-end gap-1 h-full relative">
+                              <div key={day.date} className="flex-1 flex flex-col items-center gap-3 group/bar z-10">
+                                <div className="w-full flex flex-col items-center justify-end gap-1 h-56 relative group/inner">
                                   {/* Tooltip */}
-                                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gold-500 text-maroon-950 text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-xl">
-                                    {day.pageViews} Views • {day.uniqueVisitors || 0} Guests
+                                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-maroon-900/90 backdrop-blur-md border border-gold-500/30 text-gold-500 text-[10px] font-bold px-3 py-2 rounded-xl opacity-0 group-hover/bar:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-30 shadow-2xl scale-75 group-hover/bar:scale-100 -translate-y-2 group-hover/bar:translate-y-0">
+                                    <div className="flex flex-col gap-1 items-center">
+                                      <span className="text-white/60 text-[8px] uppercase tracking-widest mb-1">{new Date(day.date).toLocaleDateString([], {month:'short', day:'numeric'})}</span>
+                                      <span>{day.pageViews} Total Views</span>
+                                      <span className="text-blue-400">{day.uniqueVisitors || 0} Unique Guests</span>
+                                    </div>
+                                    {/* Tooltip Arrow */}
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-gold-500/30" />
                                   </div>
+
+                                  {/* Page Views Bar */}
                                   <motion.div 
-                                    className="w-full bg-gold-500/80 group-hover/bar:bg-gold-400 rounded-t-lg shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                                    className="w-full relative rounded-t-xl overflow-hidden shadow-[0_0_20px_rgba(212,175,55,0.1)] group-hover/bar:shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all"
                                     initial={{ height: 0 }} 
-                                    animate={{ height: `${(day.pageViews / max) * 100}%` }}
-                                    transition={{ duration: 1, delay: i * 0.05 }}
-                                  />
+                                    animate={{ height: `${viewsHeight}%` }}
+                                    transition={{ type: 'spring', damping: 15, stiffness: 100, delay: i * 0.05 }}
+                                  >
+                                    <div className="absolute inset-0 bg-gradient-to-t from-gold-600 via-gold-500 to-gold-400 group-hover/bar:from-gold-500 group-hover/bar:to-gold-300 transition-colors" />
+                                    <div className="absolute inset-0 opacity-30 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-pulse" />
+                                  </motion.div>
+
+                                  {/* Unique Visitors Bar */}
                                   <motion.div 
-                                    className="w-[60%] bg-blue-400/80 absolute bottom-0 group-hover/bar:bg-blue-300 rounded-t-sm"
+                                    className="w-[70%] absolute bottom-0 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-md shadow-lg border-t border-white/20 z-20 group-hover/bar:from-blue-500 group-hover/bar:to-blue-300"
                                     initial={{ height: 0 }} 
-                                    animate={{ height: `${((day.uniqueVisitors || 0) / max) * 100}%` }}
-                                    transition={{ duration: 1, delay: i * 0.05 + 0.2 }}
+                                    animate={{ height: `${uniqueHeight}%` }}
+                                    transition={{ type: 'spring', damping: 12, stiffness: 100, delay: i * 0.05 + 0.2 }}
                                   />
+                                  
+                                  {/* Glass Highlight on Bar */}
+                                  <div className="absolute inset-0 group-hover/bar:bg-white/5 transition-colors pointer-events-none rounded-t-xl" />
                                 </div>
-                                <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter group-hover/bar:text-gold-500 transition-colors">
-                                  {day.date.split('-').slice(1).join('/')}
+                                <span className="text-[10px] font-bold text-white/30 uppercase tracking-tight group-hover/bar:text-gold-500 group-hover/bar:scale-110 transition-all">
+                                  {day.date.split('-').slice(2).join('/')}
                                 </span>
                               </div>
                             );
