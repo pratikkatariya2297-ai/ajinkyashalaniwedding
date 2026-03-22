@@ -270,16 +270,16 @@ const Admin = () => {
                     
                     <div className="relative group/chart_area">
                       {/* Sticky Y-Axis labels */}
-                      <div className="absolute left-0 top-24 bottom-12 w-10 flex flex-col justify-between pointer-events-none z-30 bg-gradient-to-r from-black/20 to-transparent pr-2">
+                      <div className="absolute left-0 top-24 bottom-12 w-12 flex flex-col justify-between pointer-events-none z-30 bg-maroon-950/90 backdrop-blur-sm pr-3 border-r border-gold-500/10">
                         {[1, 0.75, 0.5, 0.25, 0].map((tick, idx) => {
                           const max = Math.max(...data.dailyTraffic.map(d => d.pageViews || 1), 1);
                           return (
-                            <span key={idx} className="text-[9px] font-bold text-white/40 text-right">{Math.round(max * tick)}</span>
+                            <span key={idx} className="text-[9px] font-bold text-gold-500/60 text-right">{Math.round(max * tick)}</span>
                           );
                         })}
                       </div>
 
-                      <div className="overflow-x-auto relative z-10 pt-4 custom-scrollbar pb-6 pl-12">
+                      <div className="overflow-x-auto relative z-10 pt-4 custom-scrollbar pb-6 pl-20">
                         <div className="h-84 flex items-end gap-2 md:gap-3 min-w-max relative pb-10 pt-20">
                           {/* Y-Axis Grid Lines */}
                           <div className="absolute inset-x-0 inset-y-0 pointer-events-none flex flex-col justify-between pt-24 pb-12">
