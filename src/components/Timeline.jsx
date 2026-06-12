@@ -139,6 +139,7 @@ const Timeline = () => {
 
   return (
     <section 
+      id="timeline"
       className="py-32 bg-maroon-950 relative overflow-hidden z-0 border-b-8 border-gold-500 shadow-[inset_0_0_80px_rgba(0,0,0,0.9)] group"
       onMouseMove={handleMouseMove}
     >

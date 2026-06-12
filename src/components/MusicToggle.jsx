@@ -39,7 +39,7 @@ const MusicToggle = () => {
   return (
     <motion.button
       onClick={toggleMusic}
-      className="fixed bottom-6 lg:bottom-12 right-6 lg:right-12 z-50 w-12 h-12 md:w-14 md:h-14 bg-emerald-900 border border-gold-500 rounded-full flex items-center justify-center text-gold-500 shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-110 hover:bg-gold-500 hover:text-emerald-900 transition-all duration-300"
+      className="fixed top-6 md:top-auto md:bottom-12 right-4 md:right-12 z-50 w-10 h-10 md:w-14 md:h-14 bg-emerald-900 border border-gold-500 rounded-full flex items-center justify-center text-gold-500 shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-110 hover:bg-gold-500 hover:text-emerald-900 transition-all duration-300"
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 2 }} // Small delay after site reveal

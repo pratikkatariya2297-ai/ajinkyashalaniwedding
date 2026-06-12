@@ -4,7 +4,7 @@ import ClickSparkles from './ui/ClickSparkles';
 
 const Venue = () => {
   return (
-    <section className="pt-32 pb-12 text-maroon-950 relative overflow-hidden bg-cream-50">
+    <section id="venue" className="pt-32 pb-12 text-maroon-950 relative overflow-hidden bg-cream-50">
       {/* Moving Ambient Glow Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <motion.div 

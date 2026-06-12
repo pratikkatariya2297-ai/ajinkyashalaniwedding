@@ -9,7 +9,7 @@ const Wardrobe = () => {
   ];
 
   return (
-    <section className="py-32 relative overflow-hidden text-cream-50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-20 border-b-8 border-gold-500">
+    <section id="wardrobe" className="py-32 relative overflow-hidden text-cream-50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-20 border-b-8 border-gold-500">
       {/* Moving Background */}
       <motion.div 
         className="absolute inset-0 bg-gradient-to-br from-maroon-950 via-maroon-900 to-[#1a050d]"

@@ -8,6 +8,8 @@ import MusicToggle from '../components/MusicToggle';
 import Wardrobe from '../components/Wardrobe';
 import LeadCatcher from '../components/LeadCatcher';
 import PerformanceSignup from '../components/PerformanceSignup';
+import RoomAllocation from '../components/RoomAllocation';
+import PageNavigator from '../components/PageNavigator';
 import { storage } from '../utils/storage';
 import { initPresence } from '../firebase';
 
@@ -54,8 +56,10 @@ const Home = () => {
         <Wardrobe />
         <Timeline />
         <Venue />
+        <RoomAllocation />
         <PerformanceSignup />
         
+        <PageNavigator />
         <footer className="bg-maroon-950 py-16 text-center border-t-8 border-gold-500 relative overflow-hidden">
           <div className="absolute inset-0 bg-jaali opacity-30 pointer-events-none mix-blend-color-burn" />
           <div className="relative z-10 flex flex-col items-center gap-4">

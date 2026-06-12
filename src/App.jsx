@@ -8,6 +8,8 @@ import Wardrobe from './components/Wardrobe';
 import PerformanceSignup from './components/PerformanceSignup';
 import LeadCatcher from './components/LeadCatcher';
 import MusicToggle from './components/MusicToggle';
+import RoomAllocation from './components/RoomAllocation';
+import PageNavigator from './components/PageNavigator';
 import { storage } from './utils/storage';
 import { initPresence } from './firebase';
 import logo from './assets/logo.png';
@@ -15,7 +17,7 @@ import logo from './assets/logo.png';
 const Butterfly = lazy(() => import('./components/Butterfly'));
 
 const App = () => {
-  const [step, setStep] = useState('loader'); // 'loader' | 'catcher' | 'site'
+  const [step, setStep] = useState('site'); // 'loader' | 'catcher' | 'site'
 
   useEffect(() => {
     storage.incrementPageView();
@@ -26,15 +28,6 @@ const App = () => {
   return (
     <div className="bg-paper text-maroon-900 font-sans selection:bg-gold-500/40 selection:text-maroon-950 overflow-x-hidden min-h-screen">
       
-      {step === 'loader' && (
-        <Loader onComplete={() => setStep('catcher')} />
-      )}
-
-      {step === 'catcher' && (
-        <LeadCatcher onAccessGranted={() => setStep('site')} />
-      )}
-
-      {step === 'site' && (
         <>
             <Suspense fallback={null}>
               {/* Single butterfly — natural, gentle floating */}
@@ -46,8 +39,10 @@ const App = () => {
             <Wardrobe />
             <PerformanceSignup />
             <Venue />
+            <RoomAllocation />
             
             <MusicToggle />
+            <PageNavigator />
 
             {/* Footer */}
             <footer className="py-24 bg-black text-center border-t-8 border-gold-500 relative overflow-hidden">
@@ -89,7 +84,6 @@ const App = () => {
             </footer>
 
         </>
-      )}
     </div>
   );
 };

@@ -45,7 +45,7 @@ const PerformanceSignup = () => {
   return (
     <>
       {/* Trigger Banner Section */}
-      <section 
+      <section id="signup" 
         className="py-20 md:py-32 relative overflow-hidden border-y-8 border-gold-500 shadow-[inset_0_0_80px_rgba(0,0,0,0.9)] z-10 my-20 group"
         onMouseMove={handleMouseMove}
       >
